@@ -1,15 +1,21 @@
-document.getElementById('emailInput').addEventListener('input', function () {
-  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.value);
+document.getElementById('nameInput').addEventListener('input', function () {
+  const valid = this.value.trim().length >= 2;
   document.getElementById('inviteBtn').disabled = !valid;
 });
 
 document.getElementById('inviteBtn').addEventListener('click', function () {
-  const email = document.getElementById('emailInput').value;
+  const playerName = document.getElementById('nameInput').value.trim();
   const gameId = Math.random().toString(36).substring(2, 10);
-  const link = `${location.origin}/?game=${gameId}`;
+  const link = `${location.origin}${location.pathname}?game=${gameId}`;
   document.getElementById('gameLink').value = link;
   document.getElementById('gameLinkSection').style.display = 'block';
-  // In una versione completa qui andrebbe registrata la partita su Firebase
+
+  // Salvataggio su Firebase (inizio partita)
+  const gameRef = firebase.database().ref("games/" + gameId);
+  gameRef.set({
+    player1: { name: playerName, joined: true },
+    createdAt: Date.now()
+  });
 });
 
 function copyLink() {
