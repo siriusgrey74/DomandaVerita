@@ -10,6 +10,108 @@
 </head>
 <body>
   <h1>Domanda o Verità</h1>
-  <p>Apri questo file dal browser per giocare offline o usa GitHub Pages per giocare online.</p>
+
+  <div class="section">
+    <h2>Giocatore</h2>
+    <select id="player">
+      <option value="1">Giocatore 1</option>
+      <option value="2">Giocatore 2</option>
+    </select>
+  </div>
+
+  <div class="section">
+    <h2>Imposta la tua combinazione segreta</h2>
+    <input id="combination" type="text" placeholder="Esempio: 1,2,3,4,5,6,7,8">
+    <button onclick="saveCombination()">Salva Combinazione</button>
+    <p id="saveStatus"></p>
+  </div>
+
+  <div class="section">
+    <h2>Scommetti e fai una domanda</h2>
+    <input id="bid" type="number" placeholder="Token da scommettere (0-10)">
+    <select id="question">
+      <option value="">-- Scegli una domanda --</option>
+      <option value="1">1. Somma carte dispari?</option>
+      <option value="2">2. Quanti numeri > 5?</option>
+      <option value="3">3. Posizioni pari con numeri pari?</option>
+      <option value="4">4. Carta in posizione 3?</option>
+      <option value="5">5. Carte alle estremità?</option>
+      <option value="6">6. Somma prime 4 carte?</option>
+      <option value="7">7. Quanti numeri &lt; 4?</option>
+      <option value="8">8. Quanti numeri ≥ 6?</option>
+      <option value="9">9. Somma posizioni 2,5,7?</option>
+      <option value="10">10. Carta più alta?</option>
+      <option value="11">11. Posizione numeri 1 e 8?</option>
+    </select>
+    <button onclick="askQuestion()">Poni domanda</button>
+    <p id="questionResult"></p>
+  </div>
+
+  <div class="section">
+    <h2>Dichiara Verità</h2>
+    <input id="guess" type="text" placeholder="Esempio: 1,2,3,4,5,6,7,8">
+    <button onclick="checkTruth()">Dichiara Verità</button>
+    <p id="truthResult"></p>
+  </div>
+
+  <script>
+    const combinations = {
+      1: JSON.parse(localStorage.getItem("combo1")) || [],
+      2: JSON.parse(localStorage.getItem("combo2")) || []
+    };
+
+    function saveCombination() {
+      const p = document.getElementById("player").value;
+      const input = document.getElementById("combination").value;
+      const combo = input.split(",").map(n => parseInt(n.trim()));
+      if (combo.length !== 8 || new Set(combo).size !== 8 || combo.some(n => n < 1 || n > 8)) {
+        document.getElementById("saveStatus").innerText = "❌ Combinazione non valida.";
+        return;
+      }
+      combinations[p] = combo;
+      localStorage.setItem("combo" + p, JSON.stringify(combo));
+      document.getElementById("saveStatus").innerText = "✅ Combinazione salvata per Giocatore " + p;
+    }
+
+    function askQuestion() {
+      const p = document.getElementById("player").value;
+      const opp = p === "1" ? "2" : "1";
+      const q = parseInt(document.getElementById("question").value);
+      const combo = combinations[opp];
+      const bid = parseInt(document.getElementById("bid").value);
+      if (!combo.length || !q || isNaN(bid) || bid < 0 || bid > 10) {
+        document.getElementById("questionResult").innerText = "⚠️ Controlla i dati inseriti.";
+        return;
+      }
+      let r = "";
+      switch (q) {
+        case 1: r = combo.filter(n => n % 2).reduce((a,b)=>a+b,0); break;
+        case 2: r = combo.filter(n => n > 5).length; break;
+        case 3: r = [1,3,5,7].filter(i => combo[i] % 2 === 0).length; break;
+        case 4: r = combo[2]; break;
+        case 5: r = combo[0] + " e " + combo[7]; break;
+        case 6: r = combo.slice(0,4).reduce((a,b)=>a+b,0); break;
+        case 7: r = combo.filter(n => n < 4).length; break;
+        case 8: r = combo.filter(n => n >= 6).length; break;
+        case 9: r = combo[1]+combo[4]+combo[6]; break;
+        case 10: r = Math.max(...combo); break;
+        case 11: r = "1 → pos " + (combo.indexOf(1)+1) + ", 8 → pos " + (combo.indexOf(8)+1); break;
+      }
+      document.getElementById("questionResult").innerText = "Risposta: " + r;
+    }
+
+    function checkTruth() {
+      const p = document.getElementById("player").value;
+      const opp = p === "1" ? "2" : "1";
+      const guess = document.getElementById("guess").value.split(",").map(n => parseInt(n.trim()));
+      const combo = combinations[opp];
+      if (guess.length !== 8 || combo.length !== 8) {
+        document.getElementById("truthResult").innerText = "⚠️ Combinazione errata o incompleta.";
+        return;
+      }
+      const correct = guess.every((v,i) => v === combo[i]);
+      document.getElementById("truthResult").innerText = correct ? "🎉 Esatto! Hai vinto!" : "❌ No, combinazione sbagliata.";
+    }
+  </script>
 </body>
 </html>
