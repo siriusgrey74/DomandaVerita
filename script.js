@@ -40,6 +40,9 @@ if (gameId) {
   });
 
 } else {
+  document.getElementById("creatorSection").style.display = "block";
+  document.getElementById("inviteeSection").style.display = "none";
+
   document.getElementById("nameInput").addEventListener("input", function () {
     const valid = this.value.trim().length >= 2;
     document.getElementById("inviteBtn").disabled = !valid;
@@ -54,6 +57,17 @@ if (gameId) {
     firebase.database().ref("games/" + newGameId).set({
       player1: { name: playerName, joined: true },
       createdAt: Date.now()
+    });
+
+    const gameRef = firebase.database().ref("games/" + newGameId);
+    gameRef.on("value", snapshot => {
+      const data = snapshot.val();
+      if (data?.player2?.joined) {
+        document.getElementById("status").innerText = "Avversario ha accettato! La partita può iniziare.";
+      }
+      if (data?.refused) {
+        document.getElementById("status").innerText = "L'invito è stato rifiutato.";
+      }
     });
   });
 }

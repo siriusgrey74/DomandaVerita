@@ -1,24 +1,3 @@
-body {
-  background-color: #0d1117;
-  color: #e6edf3;
-  font-family: 'Segoe UI', sans-serif;
-  padding: 20px;
-  text-align: center;
-}
-input, button {
-  padding: 10px;
-  margin-top: 10px;
-  font-size: 16px;
-}
-button {
-  background-color: #58a6ff;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-button:disabled {
-  background-color: #30363d;
-}
 
 #version-banner {
   position: fixed;
@@ -31,4 +10,17 @@ button:disabled {
   font-size: 14px;
   text-align: center;
   z-index: 1000;
+}
+body {
+  font-family: sans-serif;
+  margin: 60px 20px 20px 20px;
+}
+input {
+  margin: 5px 0;
+  padding: 5px;
+  width: 200px;
+}
+button {
+  margin-left: 5px;
+  padding: 5px 10px;
 }
