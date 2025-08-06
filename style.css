@@ -19,3 +19,16 @@ button {
 button:disabled {
   background-color: #30363d;
 }
+
+#version-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #1f6feb;
+  color: white;
+  padding: 5px;
+  font-size: 14px;
+  text-align: center;
+  z-index: 1000;
+}
