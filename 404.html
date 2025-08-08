@@ -7,13 +7,13 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="style.css?v=8_4_6">
+  <link rel="stylesheet" href="style.css?v=8_4_7">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="firebase-config.js?v=8_4_6"></script>
+  <script src="firebase-config.js?v=8_4_7"></script>
 </head>
 <body>
-  <div id="version-banner">Versione: v8.4.6 – Fix esito (leader resiliente + retry), debug integrato</div>
+  <div id="version-banner">Versione: v8.4.7 – Fix pulsante invito (init DOM), copy modern, log</div>
 
   <main id="app">
     <div id="diagBox" class="panel muted small">diag…</div>
@@ -140,10 +140,6 @@
     </section>
   </main>
 
-  <script>
-    // Mostra la debug bar se c'è ?debug=1
-    (function(){ if(new URLSearchParams(location.search).get('debug')==='1'){ document.getElementById('debugBar').classList.remove('hidden'); } })();
-  </script>
-  <script src="script-v846.js?v=8_4_6"></script>
+  <script src="script-v847.js?v=8_4_7"></script>
 </body>
 </html>
