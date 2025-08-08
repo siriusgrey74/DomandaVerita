@@ -9,7 +9,7 @@ h1,h2{ margin:0 0 10px 0; }
 input[type="text"], input[readonly], input[type='number']{ width:100%; padding:10px 12px; border:1px solid #30363d; border-radius:8px; background:#0d1117; color:var(--fg); margin:8px 0; }
 button{ background:var(--accent); color:white; border:none; border-radius:8px; padding:10px 14px; font-weight:600; cursor:pointer; }
 button.secondary{ background:#30363d; }
-button.danger{ background:var(--danger); }
+button.danger{ background:#da3633; }
 button:disabled{ opacity:0.6; cursor:not-allowed; }
 .hidden{ display:none; }
 .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
