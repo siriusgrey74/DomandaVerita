@@ -6,6 +6,7 @@
   --card: #161b22;
   --muted: #8b949e;
   --ok: #2ea043;
+  --danger: #da3633;
 }
 * { box-sizing: border-box; }
 body {
@@ -53,12 +54,12 @@ button {
   cursor: pointer;
 }
 button.secondary { background: #30363d; }
+button.danger { background: var(--danger); }
 button:disabled { opacity: 0.6; cursor: not-allowed; }
 .hidden { display: none; }
 .row { display: flex; gap: 10px; align-items: center; }
 .linkrow { display: flex; gap: 8px; align-items: stretch; }
 .linkrow input { flex: 1; }
-
 .muted { color: var(--muted); }
 
 .gridwrap { margin-top: 12px; }
@@ -88,10 +89,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   cursor: pointer;
   user-select: none;
 }
-.card.selected {
-  outline: 2px solid var(--ok);
-  background: #052d11;
-}
+.card.selected { outline: 2px solid var(--ok); background: #052d11; }
 #timer { margin: 6px 0 10px 0; font-weight: 600; }
 #selected { margin: 6px 0 10px 0; }
 

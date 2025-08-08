@@ -10,14 +10,17 @@
   <script src="firebase-config.js"></script>
 </head>
 <body>
-  <div id="version-banner">Versione: v6 – Waiting fix + Griglia carte 4x13</div>
+  <div id="version-banner">Versione: v7 – Restore attesa + Annulla invito</div>
 
   <main id="app">
-    <section id="creatorSection" class="panel">
+    <!-- Creator section -->
+    <section id="creatorSection" class="panel hidden">
       <h1>Domanda o Verità</h1>
-      <p>Inserisci il tuo nome per creare la partita.</p>
-      <input type="text" id="nameInput" placeholder="Il tuo nome">
-      <button id="inviteBtn" disabled>Genera invito</button>
+      <div id="creatorStart">
+        <p>Inserisci il tuo nome per creare la partita.</p>
+        <input type="text" id="nameInput" placeholder="Il tuo nome">
+        <button id="inviteBtn" disabled>Genera invito</button>
+      </div>
 
       <div id="gameLinkWrap" class="hidden">
         <p><strong>Invia questo link all'avversario:</strong></p>
@@ -26,9 +29,14 @@
           <button id="copyBtn">📋 Copia</button>
         </div>
         <p id="creatorStatus">In attesa che l'avversario accetti...</p>
+        <div class="row">
+          <button id="cancelBtn" class="danger">Annulla invito</button>
+          <button id="newInviteBtn" class="secondary hidden">Nuovo invito</button>
+        </div>
       </div>
     </section>
 
+    <!-- Invitee section -->
     <section id="inviteeSection" class="panel hidden">
       <h1>Sei stato invitato a giocare</h1>
       <p id="player1Info"></p>
@@ -40,6 +48,7 @@
       <p id="inviteeStatus"></p>
     </section>
 
+    <!-- Card selection section -->
     <section id="selectCardsSection" class="panel hidden">
       <h2>Seleziona le tue 8 carte</h2>
       <div id="timer">Tempo rimasto: <span id="timeLeft">60</span>s</div>
