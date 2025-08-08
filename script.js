@@ -1,2 +1,2 @@
-// JavaScript placeholder per v8.3.8
-console.log('Versione 8.3.8');
+// v8.4.8 example JS
+console.log('Webapp Domanda o Verità v8.4.8');
