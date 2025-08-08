@@ -1,1 +1,135 @@
-<!DOCTYPE html><html><head><title>v8.3.8</title></head><body>Versione 8.3.8</body></html>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Domanda o Verità</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="stylesheet" href="style.css?v=838">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js?v=838"></script>
+</head>
+<body>
+  <div id="version-banner">Versione: v8.3.8 – Risoluzione a tempo certa: salvataggio puntata live (bet_current_*), server legge al deadline</div>
+
+  <main id="app">
+    <div id="diagBox" class="panel muted small">diag…</div>
+
+    <section id="creatorSection" class="panel">
+      <h1>Domanda o Verità</h1>
+      <div id="creatorStart">
+        <p>Inserisci il tuo nome per creare la partita.</p>
+        <input type="text" id="nameInput" placeholder="Il tuo nome">
+        <button id="inviteBtn" disabled>Genera invito</button>
+      </div>
+
+      <div id="gameLinkWrap" class="hidden">
+        <p><strong>Link per l'avversario (da inviare):</strong></p>
+        <div class="linkrow">
+          <input id="gameLinkOpponent" readonly>
+          <button id="copyOpponentBtn">📋 Copia</button>
+        </div>
+        <p><strong>Il tuo link di gestione (per tornare all'attesa):</strong></p>
+        <div class="linkrow">
+          <input id="gameLinkHost" readonly>
+          <button id="copyHostBtn">📋 Copia</button>
+        </div>
+        <p id="creatorStatus">In attesa che l'avversario accetti...</p>
+        <div class="row">
+          <button id="cancelBtn" class="danger">Annulla invito</button>
+          <button id="newInviteBtn" class="secondary hidden">Nuovo invito</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="inviteeSection" class="panel hidden">
+      <h1>Sei stato invitato a giocare</h1>
+      <p id="player1Info"></p>
+      <input type="text" id="nameInput2" placeholder="Il tuo nome">
+      <div class="row">
+        <button id="acceptBtn" disabled>Accetta invito</button>
+        <button id="rejectBtn" class="secondary">Rifiuta</button>
+      </div>
+      <p id="inviteeStatus"></p>
+    </section>
+
+    <section id="selectCardsSection" class="panel hidden">
+      <h2>Seleziona le tue 8 carte</h2>
+      <div id="timer">Tempo rimasto: <span id="timeLeft">60</span>s</div>
+      <div id="selected">Carte selezionate: <span id="selectedCards">—</span></div>
+
+      <div class="gridwrap">
+        <div class="gridheader">
+          <div>Picche (p)</div>
+          <div>Cuori (c)</div>
+          <div>Quadri (q)</div>
+          <div>Fiori (f)</div>
+        </div>
+        <div id="cardGrid" class="cardgrid"></div>
+      </div>
+
+      <button id="confirmBtn" disabled>Conferma selezione</button>
+      <p id="selectInfo" class="muted">La partita partirà automaticamente quando entrambi avranno confermato.</p>
+      <p id="startBettingCountdown" class="muted hidden"></p>
+    </section>
+
+    <section id="bettingSection" class="panel hidden">
+      <h2>Fase di puntata – Turno <span id="turnNo">1</span></h2>
+      <div class="row">
+        <div><strong>I tuoi token:</strong> <span id="myTokens">—</span></div>
+        <div id="oppLowWrap" class="muted hidden">• ⚠️ Avversario in difficoltà (token &lt; 6)</div>
+      </div>
+      <div id="betTimer">Tempo per puntare: <span id="betTimeLeft">15</span>s</div>
+
+      <div class="betControls">
+        <div class="betControl">
+          <label for="betSelect">Seleziona puntata:</label>
+          <select id="betSelect"></select>
+        </div>
+        <div class="betControl">
+          <label for="betInput">Oppure inserisci un numero:</label>
+          <input id="betInput" type="number" min="0" step="1" value="0" class="bigInput">
+        </div>
+        <div class="betControl">
+          <label>&nbsp;</label>
+          <button id="betZero" class="secondary bigBtn">Punta 0</button>
+        </div>
+      </div>
+
+      <p class="muted">Le puntate restano segrete. Puoi modificare la cifra finché il timer non finisce.</p>
+      <p id="betStatus" class="muted">Inserisci la tua puntata…</p>
+    </section>
+
+    <section id="outcomeSection" class="panel hidden">
+      <h2>Esito puntata – Turno <span id="outcomeTurn">1</span></h2>
+      <p id="outcomeText"></p>
+      <div id="winnerInfo" class="highlight"></div>
+      <div id="postOutcome"></div>
+    </section>
+
+    <section id="actionSection" class="panel hidden">
+      <h2>Fase Azione</h2>
+      <div id="actionForWinner" class="hidden">
+        <p><strong>Tocca a te!</strong> Scegli: </p>
+        <div class="row">
+          <button id="chooseQuestion" class="bigBtn">Domanda</button>
+          <button id="chooseTruth" class="bigBtn secondary">Verità</button>
+        </div>
+        <div class="row">
+          <button id="proceedNextTurn" class="danger">Chiudi azione e vai al turno successivo</button>
+        </div>
+        <p class="muted">(* In questa versione registriamo la scelta; il flusso domande/risposte arriva a breve.)</p>
+      </div>
+      <div id="actionForLoser" class="hidden">
+        <p>Attendi che l'avversario effettui la sua azione…</p>
+      </div>
+      <p id="actionStatus" class="muted"></p>
+    </section>
+  </main>
+
+  <script src="script-v838.js?v=838"></script>
+</body>
+</html>
