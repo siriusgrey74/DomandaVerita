@@ -20,6 +20,7 @@ button:disabled{ opacity:0.6; cursor:not-allowed; }
 .cardgrid{ display:grid; grid-template-columns:repeat(4,1fr); grid-auto-rows:minmax(38px,auto); gap:6px; }
 .card{ border:1px solid #30363d; border-radius:8px; background:#0d1117; color:var(--fg); display:flex; align-items:center; justify-content:center; padding:6px; cursor:pointer; user-select:none; }
 .card.selected{ outline:2px solid var(--ok); background:#052d11; }
+.card.disabled{ opacity:0.5; pointer-events:none; }
 #timer{ margin:6px 0 10px 0; font-weight:600; }
 #selected{ margin:6px 0 10px 0; }
 @media (max-width:700px){ .gridheader{ font-size:12px; } .cardgrid{ grid-auto-rows:44px; } }
