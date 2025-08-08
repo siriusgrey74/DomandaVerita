@@ -2,32 +2,22 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Domanda o Verità</title>
+  <title>Domanda o Verità – Selezione Carte</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="firebase-config.js"></script>
 </head>
 <body>
-  <div id="version-banner">Versione: v4 – Sviluppo in corso</div>
+  <div id="version-banner">Versione: v5 – Selezione Carte</div>
   <div id="main">
-    <h1>Domanda o Verità</h1>
-    <div id="creatorSection">
-      <p>Benvenuto! Inserisci il tuo nome per iniziare.</p>
-      <input type="text" id="nameInput" placeholder="Es: Marco">
-      <button id="inviteBtn" disabled>Genera invito</button>
-      <div id="gameLinkSection" style="display:none;">
-        <p>Link partita:</p>
-        <input id="gameLink" readonly><button onclick="copyLink()">📋</button>
-      </div>
+    <h2>Seleziona le tue 8 carte</h2>
+    <div id="timer">Tempo rimasto: <span id="timeLeft">60</span> sec</div>
+    <div id="selected">Carte selezionate: <span id="selectedCards">—</span></div>
+    <div id="cardGrid">
+      <!-- Carte per ogni seme saranno generate via JS -->
     </div>
-    <div id="inviteeSection" style="display:none;">
-      <p id="player1Info"></p>
-      <input type="text" id="nameInput2" placeholder="Il tuo nome">
-      <button id="acceptBtn" disabled>Accetta invito</button>
-      <button id="rejectBtn">Rifiuta invito</button>
-    </div>
-    <p id="status"></p>
+    <button id="confirmBtn" disabled>Conferma selezione</button>
   </div>
   <script src="script.js"></script>
 </body>

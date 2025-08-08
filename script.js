@@ -1,79 +1,71 @@
 
-function getGameIdFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("game");
+const semi = ['p', 'c', 'q', 'f'];
+const valori = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+let selected = [];
+
+const grid = document.getElementById("cardGrid");
+const selectedCardsSpan = document.getElementById("selectedCards");
+const confirmBtn = document.getElementById("confirmBtn");
+
+// Genera la griglia carte
+semi.forEach(seme => {
+  valori.forEach(val => {
+    const carta = val + seme;
+    const btn = document.createElement("div");
+    btn.className = "card";
+    btn.innerText = carta;
+    btn.dataset.card = carta;
+    btn.addEventListener("click", () => toggleCarta(carta, btn));
+    grid.appendChild(btn);
+  });
+});
+
+function toggleCarta(carta, btnEl) {
+  const index = selected.indexOf(carta);
+  if (index !== -1) {
+    selected.splice(index, 1);
+    btnEl.classList.remove("selected");
+  } else {
+    if (selected.length >= 8) return;
+    selected.push(carta);
+    btnEl.classList.add("selected");
+  }
+  updateSelectedDisplay();
 }
 
-const gameId = getGameIdFromUrl();
+function updateSelectedDisplay() {
+  selectedCardsSpan.innerText = selected.length ? selected.join(", ") : "—";
+  confirmBtn.disabled = selected.length !== 8;
+}
 
-if (gameId) {
-  document.getElementById("creatorSection").style.display = "none";
-  document.getElementById("inviteeSection").style.display = "block";
+// Timer 60 secondi
+let timeLeft = 60;
+const timerEl = document.getElementById("timeLeft");
+const timer = setInterval(() => {
+  timeLeft--;
+  timerEl.innerText = timeLeft;
+  if (timeLeft <= 0) {
+    clearInterval(timer);
+    confirmBtn.disabled = true;
+    alert("Tempo scaduto. Le carte verranno completate automaticamente.");
+    // Completamento automatico (solo client-side per ora)
+    autoCompleteCarte();
+  }
+}, 1000);
 
-  const gameRef = firebase.database().ref("games/" + gameId);
-  gameRef.once("value").then(snapshot => {
-    const gameData = snapshot.val();
-    if (!gameData) {
-      document.getElementById("status").innerText = "Invito non valido.";
-      return;
+function autoCompleteCarte() {
+  const fullDeck = semi.flatMap(seme => valori.map(v => v + seme));
+  while (selected.length < 8) {
+    const randomCard = fullDeck[Math.floor(Math.random() * fullDeck.length)];
+    if (!selected.includes(randomCard)) {
+      selected.push(randomCard);
     }
-    document.getElementById("player1Info").innerText =
-      "Sei stato invitato da: " + gameData.player1.name;
-  });
-
-  document.getElementById("nameInput2").addEventListener("input", function () {
-    document.getElementById("acceptBtn").disabled = this.value.trim().length < 2;
-  });
-
-  document.getElementById("acceptBtn").addEventListener("click", function () {
-    const name = document.getElementById("nameInput2").value.trim();
-    firebase.database().ref("games/" + gameId + "/player2").set({
-      name: name,
-      joined: true
-    });
-    document.getElementById("status").innerText = "Hai accettato l'invito.";
-  });
-
-  document.getElementById("rejectBtn").addEventListener("click", function () {
-    firebase.database().ref("games/" + gameId + "/refused").set(true);
-    document.getElementById("status").innerText = "Hai rifiutato l'invito.";
-  });
-
-} else {
-  document.getElementById("creatorSection").style.display = "block";
-  document.getElementById("inviteeSection").style.display = "none";
-
-  document.getElementById("nameInput").addEventListener("input", function () {
-    const valid = this.value.trim().length >= 2;
-    document.getElementById("inviteBtn").disabled = !valid;
-  });
-
-  document.getElementById("inviteBtn").addEventListener("click", function () {
-    const playerName = document.getElementById("nameInput").value.trim();
-    const newGameId = Math.random().toString(36).substring(2, 10);
-    const link = `${location.origin}${location.pathname}?game=${newGameId}`;
-    document.getElementById("gameLink").value = link;
-    document.getElementById("gameLinkSection").style.display = "block";
-    firebase.database().ref("games/" + newGameId).set({
-      player1: { name: playerName, joined: true },
-      createdAt: Date.now()
-    });
-
-    const gameRef = firebase.database().ref("games/" + newGameId);
-    gameRef.on("value", snapshot => {
-      const data = snapshot.val();
-      if (data?.player2?.joined) {
-        document.getElementById("status").innerText = "Avversario ha accettato! La partita può iniziare.";
-      }
-      if (data?.refused) {
-        document.getElementById("status").innerText = "L'invito è stato rifiutato.";
-      }
-    });
-  });
+  }
+  updateSelectedDisplay();
+  confirmBtn.disabled = false;
 }
 
-function copyLink() {
-  const link = document.getElementById('gameLink');
-  link.select();
-  document.execCommand('copy');
-}
+confirmBtn.addEventListener("click", () => {
+  alert("Carte confermate: " + selected.join(", "));
+  // Salvataggio su Firebase andrà aggiunto qui
+});
