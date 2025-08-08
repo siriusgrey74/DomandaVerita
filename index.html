@@ -7,13 +7,13 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="style.css?v=839">
+  <link rel="stylesheet" href="style.css?v=840">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="firebase-config.js?v=839"></script>
+  <script src="firebase-config.js?v=840"></script>
 </head>
 <body>
-  <div id="version-banner">Versione: v8.3.9 – Fix ruolo in puntata (scrittura corretta bet_current_p1/p2), risoluzione vincitore affidabile</div>
+  <div id="version-banner">Versione: v8.4.0 – Fix salvataggio puntata (ruolo certo, debounce), pareggi gestiti, action gating stabile</div>
 
   <main id="app">
     <div id="diagBox" class="panel muted small">diag…</div>
@@ -101,6 +101,7 @@
 
       <p class="muted">Le puntate restano segrete. Puoi modificare la cifra finché il timer non finisce.</p>
       <p id="betStatus" class="muted">Inserisci la tua puntata…</p>
+      <p id="betEcho" class="muted small"></p>
     </section>
 
     <section id="outcomeSection" class="panel hidden">
@@ -130,6 +131,6 @@
     </section>
   </main>
 
-  <script src="script-v839.js?v=839"></script>
+  <script src="script-v840.js?v=840"></script>
 </body>
 </html>
