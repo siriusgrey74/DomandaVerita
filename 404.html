@@ -10,10 +10,9 @@
   <script src="firebase-config.js"></script>
 </head>
 <body>
-  <div id="version-banner">Versione: v7 – Restore attesa + Annulla invito</div>
+  <div id="version-banner">Versione: v7.1 – Restore via URL + LocalStorage</div>
 
   <main id="app">
-    <!-- Creator section -->
     <section id="creatorSection" class="panel hidden">
       <h1>Domanda o Verità</h1>
       <div id="creatorStart">
@@ -36,7 +35,6 @@
       </div>
     </section>
 
-    <!-- Invitee section -->
     <section id="inviteeSection" class="panel hidden">
       <h1>Sei stato invitato a giocare</h1>
       <p id="player1Info"></p>
@@ -48,7 +46,6 @@
       <p id="inviteeStatus"></p>
     </section>
 
-    <!-- Card selection section -->
     <section id="selectCardsSection" class="panel hidden">
       <h2>Seleziona le tue 8 carte</h2>
       <div id="timer">Tempo rimasto: <span id="timeLeft">60</span>s</div>
