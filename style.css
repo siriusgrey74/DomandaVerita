@@ -15,8 +15,10 @@ button.danger{ background:#da3633; }
 button:disabled{ opacity:0.6; cursor:not-allowed; }
 .hidden{ display:none; }
 .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.wrap{ flex-wrap:wrap; }
 .space-between{ justify-content:space-between; }
 .linkrow{ display:flex; gap:8px; align-items:stretch; } .linkrow input{ flex:1; }
 .muted{ color:#8b949e; }
+.badge{ background:#0b2b11; border:1px solid #224d2e; border-radius:8px; padding:6px 10px; color:#c9d1d9; }
 .toast{ position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:#161b22; color:#e6edf3; border:1px solid #30363d; padding:8px 12px; border-radius:8px; z-index:2000; box-shadow:0 8px 24px rgba(0,0,0,.4); }
 .toast.hidden{ display:none; }

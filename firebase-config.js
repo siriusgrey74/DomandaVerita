@@ -1,5 +1,5 @@
 
-// Puoi sostituire questa config con la tua; l'avevi già fornita
+// Config Firebase (puoi sovrascriverla con la tua se serve)
 const firebaseConfig = {
   apiKey: "AIzaSyDPi2eXhnM4OJLhikPPnvrG7RWJDpk5JUs",
   authDomain: "domandaverita.firebaseapp.com",
@@ -9,11 +9,11 @@ const firebaseConfig = {
   messagingSenderId: "1010215229915",
   appId: "1:1010215229915:web:960c3638629fd418beeffe"
 };
-try {
-  if (window.firebase && !firebase.apps.length) {
+try{
+  if(window.firebase && !firebase.apps.length){
     firebase.initializeApp(firebaseConfig);
-    console.log('Firebase init OK');
+    console.log('Firebase init OK (patch2)');
   }
-} catch (e) {
-  console.log('Firebase init ERROR', e);
+}catch(e){
+  console.log('Firebase init ERROR (patch2)', e);
 }

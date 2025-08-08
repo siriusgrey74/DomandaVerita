@@ -7,15 +7,13 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="style.css?v=8_4_8_p1">
-  <!-- Firebase compat SDKs -->
+  <link rel="stylesheet" href="style.css?v=8_4_8_p2">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <!-- Tuo config (puoi sovrascriverlo, ma lo includo per sicurezza) -->
-  <script src="firebase-config.js?v=8_4_8_p1"></script>
+  <script src="firebase-config.js?v=8_4_8_p2"></script>
 </head>
 <body>
-  <div id="version-banner">Versione: v8.4.8-patch1 – invito con fallback + diagnostica</div>
+  <div id="version-banner">Versione: v8.4.8-patch2 – rilevamento modalità + switch rapido</div>
 
   <div id="toast" class="toast hidden"></div>
 
@@ -26,6 +24,12 @@
         <button id="toggleDiag" class="secondary smallbtn">Mostra dettagli</button>
       </div>
       <pre id="diagBox" class="small hidden"></pre>
+      <div class="row wrap">
+        <div class="badge" id="modeBadge">Modalità: —</div>
+        <div class="badge" id="urlBadge">URL: —</div>
+        <button id="forceInvitee" class="secondary smallbtn">Forza modalità Invitato</button>
+        <button id="forceCreator" class="secondary smallbtn">Forza modalità Creatore</button>
+      </div>
     </section>
 
     <section id="creatorSection" class="panel">
@@ -67,6 +71,6 @@
     </section>
   </main>
 
-  <script src="script-v848-patch1.js?v=8_4_8_p1"></script>
+  <script src="script-v848-patch2.js?v=8_4_8_p2"></script>
 </body>
 </html>
