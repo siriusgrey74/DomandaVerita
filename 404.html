@@ -2,23 +2,64 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Domanda o Verità – Selezione Carte</title>
+  <title>Domanda o Verità</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="firebase-config.js"></script>
 </head>
 <body>
-  <div id="version-banner">Versione: v5 – Selezione Carte</div>
-  <div id="main">
-    <h2>Seleziona le tue 8 carte</h2>
-    <div id="timer">Tempo rimasto: <span id="timeLeft">60</span> sec</div>
-    <div id="selected">Carte selezionate: <span id="selectedCards">—</span></div>
-    <div id="cardGrid">
-      <!-- Carte per ogni seme saranno generate via JS -->
-    </div>
-    <button id="confirmBtn" disabled>Conferma selezione</button>
-  </div>
+  <div id="version-banner">Versione: v6 – Waiting fix + Griglia carte 4x13</div>
+
+  <main id="app">
+    <section id="creatorSection" class="panel">
+      <h1>Domanda o Verità</h1>
+      <p>Inserisci il tuo nome per creare la partita.</p>
+      <input type="text" id="nameInput" placeholder="Il tuo nome">
+      <button id="inviteBtn" disabled>Genera invito</button>
+
+      <div id="gameLinkWrap" class="hidden">
+        <p><strong>Invia questo link all'avversario:</strong></p>
+        <div class="linkrow">
+          <input id="gameLink" readonly>
+          <button id="copyBtn">📋 Copia</button>
+        </div>
+        <p id="creatorStatus">In attesa che l'avversario accetti...</p>
+      </div>
+    </section>
+
+    <section id="inviteeSection" class="panel hidden">
+      <h1>Sei stato invitato a giocare</h1>
+      <p id="player1Info"></p>
+      <input type="text" id="nameInput2" placeholder="Il tuo nome">
+      <div class="row">
+        <button id="acceptBtn" disabled>Accetta invito</button>
+        <button id="rejectBtn" class="secondary">Rifiuta</button>
+      </div>
+      <p id="inviteeStatus"></p>
+    </section>
+
+    <section id="selectCardsSection" class="panel hidden">
+      <h2>Seleziona le tue 8 carte</h2>
+      <div id="timer">Tempo rimasto: <span id="timeLeft">60</span>s</div>
+      <div id="selected">Carte selezionate: <span id="selectedCards">—</span></div>
+
+      <div class="gridwrap">
+        <div class="gridheader">
+          <div>Picche (p)</div>
+          <div>Cuori (c)</div>
+          <div>Quadri (q)</div>
+          <div>Fiori (f)</div>
+        </div>
+        <div id="cardGrid" class="cardgrid"></div>
+      </div>
+
+      <button id="confirmBtn" disabled>Conferma selezione</button>
+      <p id="selectInfo" class="muted">La partita partirà automaticamente quando entrambi avranno confermato.</p>
+    </section>
+  </main>
+
   <script src="script.js"></script>
 </body>
 </html>
