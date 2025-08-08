@@ -10,7 +10,7 @@
   <script src="firebase-config.js"></script>
 </head>
 <body>
-  <div id="version-banner">Versione: v7.1 – Restore via URL + LocalStorage</div>
+  <div id="version-banner">Versione: v7.2 – Fix refresh P1 + 2 link distinti</div>
 
   <main id="app">
     <section id="creatorSection" class="panel hidden">
@@ -22,10 +22,15 @@
       </div>
 
       <div id="gameLinkWrap" class="hidden">
-        <p><strong>Invia questo link all'avversario:</strong></p>
+        <p><strong>Link per l'avversario (da inviare):</strong></p>
         <div class="linkrow">
-          <input id="gameLink" readonly>
-          <button id="copyBtn">📋 Copia</button>
+          <input id="gameLinkOpponent" readonly>
+          <button id="copyOpponentBtn">📋 Copia</button>
+        </div>
+        <p><strong>Il tuo link di gestione (per tornare all'attesa):</strong></p>
+        <div class="linkrow">
+          <input id="gameLinkHost" readonly>
+          <button id="copyHostBtn">📋 Copia</button>
         </div>
         <p id="creatorStatus">In attesa che l'avversario accetti...</p>
         <div class="row">

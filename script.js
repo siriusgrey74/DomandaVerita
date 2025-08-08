@@ -28,101 +28,73 @@ const urlGameId = getGameId();   // invitee param
 const urlHostId = getHostId();   // creator restore param
 const saved = loadLocal();
 
-if(urlGameId){
-  // ----- Invitee flow (Player 2) -----
-  role='p2'; currentGameId=urlGameId;
-  creatorSection.classList.add('hidden'); inviteeSection.classList.remove('hidden');
-
-  const ref = db.ref('games/'+currentGameId);
-  ref.once('value').then(s=>{
-    const d=s.val();
-    if(!d||!d.player1){ qs('#inviteeStatus').innerText="Invito non valido o scaduto."; return; }
-    qs('#player1Info').innerText = "Sei stato invitato da: " + (d.player1.name||"Giocatore 1");
-  });
-
-  qs('#nameInput2').addEventListener('input', e=> qs('#acceptBtn').disabled = e.target.value.trim().length<2 );
-  qs('#acceptBtn').addEventListener('click', ()=>{
-    const name = qs('#nameInput2').value.trim();
-    db.ref('games/'+currentGameId+'/player2').set({ name, joined:true });
-    qs('#inviteeStatus').innerText = "Hai accettato l'invito.";
-    db.ref('games/'+currentGameId).once('value').then(s=>{ const d=s.val(); if(d?.player1?.joined){ db.ref('games/'+currentGameId+'/phase').set('select'); } });
-  });
-  qs('#rejectBtn').addEventListener('click', ()=>{
-    db.ref('games/'+currentGameId+'/refused').set(true);
-    qs('#inviteeStatus').innerText="Hai rifiutato l'invito.";
-  });
-
-  db.ref('games/'+currentGameId).on('value', s=>{
-    const d=s.val()||{};
-    if(d.cancelled){ qs('#inviteeStatus').innerText="Invito annullato dal creatore."; }
-    if(d.phase==='select'){ inviteeSection.classList.add('hidden'); startSelectCards('p2'); }
-  });
-
+// --- Decisione ruolo all'avvio ---
+// 1) Se ?host -> creatore (p1)
+// 2) Se ?game e localStorage dice che sei p1 della stessa partita -> creatore (fallback)
+// 3) Se ?game -> invitato (p2)
+// 4) Altrimenti -> creatore nuovo
+if(urlHostId){
+  role='p1'; currentGameId=urlHostId; showCreatorWaiting(currentGameId);
+} else if(urlGameId && saved && saved.role==='p1' && saved.gameId===urlGameId){
+  role='p1'; currentGameId=urlGameId; showCreatorWaiting(currentGameId);
+} else if(urlGameId){
+  role='p2'; currentGameId=urlGameId; showInvitee(currentGameId);
 } else {
-  // ----- Creator flow (Player 1) -----
-  role='p1'; creatorSection.classList.remove('hidden');
+  role='p1'; showCreatorStart();
+}
 
-  // Priority 1: URL host param
-  if(urlHostId){
-    currentGameId=urlHostId;
-    restoreWaitingUI(currentGameId);
-    attachCreatorListener(currentGameId);
-  }
-  // Priority 2: LocalStorage
-  else if(saved && saved.role==='p1' && saved.gameId){
-    currentGameId=saved.gameId;
-    restoreWaitingUI(currentGameId);
-    attachCreatorListener(currentGameId);
-  }
-  // New game
-  else{
-    qs('#nameInput').addEventListener('input', e=> qs('#inviteBtn').disabled = e.target.value.trim().length<2 );
-    qs('#inviteBtn').addEventListener('click', ()=>{
-      const name = qs('#nameInput').value.trim();
-      const newId = randomId(); currentGameId=newId;
-      const inviteLink = `${location.origin}${location.pathname}?game=${newId}`;
-      // Update UI
-      qs('#gameLink').value = inviteLink;
-      qs('#creatorStart').classList.add('hidden');
-      qs('#gameLinkWrap').classList.remove('hidden');
-      qs('#copyBtn').onclick = ()=>{ qs('#gameLink').select(); document.execCommand('copy'); };
-      // Persist both in URL and localStorage
-      history.replaceState(null, '', `${location.pathname}?host=${newId}`);
-      saveLocal({role:'p1', gameId:newId});
-      // Init game on DB
-      db.ref('games/'+newId).set({ player1:{name, joined:true}, createdAt:Date.now(), phase:'waiting' });
-      attachCreatorListener(newId);
-    });
-  }
+// ----- Creator (p1) -----
+function showCreatorStart(){
+  creatorSection.classList.remove('hidden');
+  inviteeSection.classList.add('hidden');
+  selectCardsSection.classList.add('hidden');
 
-  // Cancel button
-  qs('#cancelBtn').addEventListener('click', ()=>{
-    if(!currentGameId) return;
-    db.ref('games/'+currentGameId+'/cancelled').set(true);
-    qs('#creatorStatus').innerText="Invito annullato.";
-    clearLocal();
-    history.replaceState(null, '', location.pathname);
-    qs('#newInviteBtn').classList.remove('hidden');
-    qs('#cancelBtn').disabled = true;
-  });
+  qs('#nameInput').addEventListener('input', e=> qs('#inviteBtn').disabled = e.target.value.trim().length<2 );
+  qs('#inviteBtn').addEventListener('click', ()=>{
+    const name = qs('#nameInput').value.trim();
+    const newId = randomId(); currentGameId=newId;
 
-  // New invite button
-  qs('#newInviteBtn').addEventListener('click', ()=>{
-    qs('#creatorStart').classList.remove('hidden');
-    qs('#gameLinkWrap').classList.add('hidden');
-    qs('#creatorStatus').innerText = "In attesa che l'avversario accetti...";
-    qs('#newInviteBtn').classList.add('hidden');
-    qs('#cancelBtn').disabled = false;
-    currentGameId=null;
+    const linkOpponent = `${location.origin}${location.pathname}?game=${newId}`;
+    const linkHost     = `${location.origin}${location.pathname}?host=${newId}`;
+
+    // UI
+    qs('#creatorStart').classList.add('hidden');
+    qs('#gameLinkWrap').classList.remove('hidden');
+    qs('#gameLinkOpponent').value = linkOpponent;
+    qs('#gameLinkHost').value = linkHost;
+    qs('#copyOpponentBtn').onclick = ()=>{ qs('#gameLinkOpponent').select(); document.execCommand('copy'); };
+    qs('#copyHostBtn').onclick = ()=>{ qs('#gameLinkHost').select(); document.execCommand('copy'); };
+
+    // Persisti sia URL host che localStorage
+    history.replaceState(null, '', linkHost);
+    saveLocal({role:'p1', gameId:newId});
+
+    // Init DB
+    db.ref('games/'+newId).set({ player1:{name, joined:true}, createdAt:Date.now(), phase:'waiting' });
+    attachCreatorListener(newId);
   });
 }
 
-function restoreWaitingUI(gid){
-  const inviteLink = `${location.origin}${location.pathname}?game=${gid}`;
-  qs('#gameLink').value = inviteLink;
+function showCreatorWaiting(gid){
+  creatorSection.classList.remove('hidden');
+  inviteeSection.classList.add('hidden');
+  selectCardsSection.classList.add('hidden');
+
+  const linkOpponent = `${location.origin}${location.pathname}?game=${gid}`;
+  const linkHost     = `${location.origin}${location.pathname}?host=${gid}`;
+
   qs('#creatorStart').classList.add('hidden');
   qs('#gameLinkWrap').classList.remove('hidden');
-  qs('#copyBtn').onclick = ()=>{ qs('#gameLink').select(); document.execCommand('copy'); };
+  qs('#gameLinkOpponent').value = linkOpponent;
+  qs('#gameLinkHost').value = linkHost;
+  qs('#copyOpponentBtn').onclick = ()=>{ qs('#gameLinkOpponent').select(); document.execCommand('copy'); };
+  qs('#copyHostBtn').onclick = ()=>{ qs('#gameLinkHost').select(); document.execCommand('copy'); };
+
+  // Se l'URL non contiene host, sostituiscilo (così il refresh è sicuro)
+  if(!getHostId()){ history.replaceState(null, '', linkHost); }
+  if(!saved || saved.gameId!==gid || saved.role!=='p1'){ saveLocal({role:'p1', gameId:gid}); }
+
+  attachCreatorListener(gid);
 }
 
 function attachCreatorListener(gid){
@@ -134,6 +106,56 @@ function attachCreatorListener(gid){
     if(d.cancelled){ qs('#creatorStatus').innerText="Invito annullato."; clearLocal(); qs('#newInviteBtn').classList.remove('hidden'); }
     if(d.player2?.joined){ qs('#creatorStatus').innerText="Avversario ha accettato! Si passa alla selezione carte..."; }
     if(d.phase==='select'){ creatorSection.classList.add('hidden'); startSelectCards('p1'); }
+  });
+
+  // Pulsanti azione
+  qs('#cancelBtn').onclick = ()=>{
+    db.ref('games/'+gid+'/cancelled').set(true);
+    qs('#creatorStatus').innerText="Invito annullato.";
+    clearLocal();
+    history.replaceState(null, '', location.pathname);
+    qs('#newInviteBtn').classList.remove('hidden');
+    qs('#cancelBtn').disabled = true;
+  };
+  qs('#newInviteBtn').onclick = ()=>{
+    qs('#creatorStart').classList.remove('hidden');
+    qs('#gameLinkWrap').classList.add('hidden');
+    qs('#creatorStatus').innerText = "In attesa che l'avversario accetti...";
+    qs('#newInviteBtn').classList.add('hidden');
+    qs('#cancelBtn').disabled = false;
+    currentGameId=null;
+  };
+}
+
+// ----- Invitee (p2) -----
+function showInvitee(gid){
+  creatorSection.classList.add('hidden');
+  inviteeSection.classList.remove('hidden');
+  selectCardsSection.classList.add('hidden');
+
+  const ref = db.ref('games/'+gid);
+  ref.once('value').then(s=>{
+    const d=s.val();
+    if(!d||!d.player1){ qs('#inviteeStatus').innerText="Invito non valido o scaduto."; return; }
+    qs('#player1Info').innerText = "Sei stato invitato da: " + (d.player1.name||"Giocatore 1");
+  });
+
+  qs('#nameInput2').addEventListener('input', e=> qs('#acceptBtn').disabled = e.target.value.trim().length<2 );
+  qs('#acceptBtn').addEventListener('click', ()=>{
+    const name = qs('#nameInput2').value.trim();
+    db.ref('games/'+gid+'/player2').set({ name, joined:true });
+    qs('#inviteeStatus').innerText = "Hai accettato l'invito.";
+    db.ref('games/'+gid).once('value').then(s=>{ const d=s.val(); if(d?.player1?.joined){ db.ref('games/'+gid+'/phase').set('select'); } });
+  });
+  qs('#rejectBtn').addEventListener('click', ()=>{
+    db.ref('games/'+gid+'/refused').set(true);
+    qs('#inviteeStatus').innerText="Hai rifiutato l'invito.";
+  });
+
+  db.ref('games/'+gid).on('value', s=>{
+    const d=s.val()||{};
+    if(d.cancelled){ qs('#inviteeStatus').innerText="Invito annullato dal creatore."; }
+    if(d.phase==='select'){ inviteeSection.classList.add('hidden'); startSelectCards('p2'); }
   });
 }
 
