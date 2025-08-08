@@ -10,9 +10,10 @@
   <script src="firebase-config.js"></script>
 </head>
 <body>
-  <div id="version-banner">Versione: v7.4 – Lock a fine tempo + conferma affidabile</div>
+  <div id="version-banner">Versione: v8.1 – Pareggio: nessun vincitore (entrambi perdono la puntata)</div>
 
   <main id="app">
+    <!-- Creator section -->
     <section id="creatorSection" class="panel">
       <h1>Domanda o Verità</h1>
       <div id="creatorStart">
@@ -40,6 +41,7 @@
       </div>
     </section>
 
+    <!-- Invitee section -->
     <section id="inviteeSection" class="panel hidden">
       <h1>Sei stato invitato a giocare</h1>
       <p id="player1Info"></p>
@@ -51,6 +53,7 @@
       <p id="inviteeStatus"></p>
     </section>
 
+    <!-- Selection section -->
     <section id="selectCardsSection" class="panel hidden">
       <h2>Seleziona le tue 8 carte</h2>
       <div id="timer">Tempo rimasto: <span id="timeLeft">60</span>s</div>
@@ -68,11 +71,35 @@
 
       <button id="confirmBtn" disabled>Conferma selezione</button>
       <p id="selectInfo" class="muted">La partita partirà automaticamente quando entrambi avranno confermato.</p>
+      <p id="startBettingCountdown" class="muted hidden"></p>
+    </section>
+
+    <!-- Betting section -->
+    <section id="bettingSection" class="panel hidden">
+      <h2>Fase di puntata – Turno <span id="turnNo">1</span></h2>
+      <div class="row">
+        <div><strong>I tuoi token:</strong> <span id="myTokens">—</span></div>
+        <div id="oppLowWrap" class="muted hidden">• ⚠️ Avversario in difficoltà (token &lt; 6)</div>
+      </div>
+      <div id="betTimer">Tempo per puntare: <span id="betTimeLeft">15</span>s</div>
+      <div class="row">
+        <label for="betInput">La tua puntata:</label>
+        <input id="betInput" type="number" min="0" step="1" value="0">
+      </div>
+      <p class="muted">Le puntate restano segrete. Puoi modificare la cifra finché il timer non finisce.</p>
+      <p id="betStatus" class="muted">Inserisci la tua puntata…</p>
+    </section>
+
+    <!-- Outcome section -->
+    <section id="outcomeSection" class="panel hidden">
+      <h2>Esito puntata – Turno <span id="outcomeTurn">1</span></h2>
+      <p id="outcomeText"></p>
+      <p class="muted" id="nextPhaseHint"></p>
     </section>
   </main>
 
   <div id="diag" class="muted" style="padding:8px; text-align:center;"></div>
 
-  <script src="script-v74.js"></script>
+  <script src="script-v81.js"></script>
 </body>
 </html>
