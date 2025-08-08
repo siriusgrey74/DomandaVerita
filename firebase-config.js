@@ -1,5 +1,5 @@
 
-// Config Firebase (puoi sovrascriverla con la tua se serve)
+// Config Firebase (puoi sovrascriverla con la tua)
 const firebaseConfig = {
   apiKey: "AIzaSyDPi2eXhnM4OJLhikPPnvrG7RWJDpk5JUs",
   authDomain: "domandaverita.firebaseapp.com",
@@ -12,8 +12,8 @@ const firebaseConfig = {
 try{
   if(window.firebase && !firebase.apps.length){
     firebase.initializeApp(firebaseConfig);
-    console.log('Firebase init OK (patch2)');
+    console.log('Firebase init OK (patch3)');
   }
 }catch(e){
-  console.log('Firebase init ERROR (patch2)', e);
+  console.log('Firebase init ERROR (patch3)', e);
 }

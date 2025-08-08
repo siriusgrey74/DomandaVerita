@@ -7,13 +7,13 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="style.css?v=8_4_8_p2">
+  <link rel="stylesheet" href="style.css?v=8_4_8_p3">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="firebase-config.js?v=8_4_8_p2"></script>
+  <script src="firebase-config.js?v=8_4_8_p3"></script>
 </head>
 <body>
-  <div id="version-banner">Versione: v8.4.8-patch2 – rilevamento modalità + switch rapido</div>
+  <div id="version-banner">Versione: v8.4.8-patch3 – invito a prova di cache + errori visibili</div>
 
   <div id="toast" class="toast hidden"></div>
 
@@ -24,12 +24,6 @@
         <button id="toggleDiag" class="secondary smallbtn">Mostra dettagli</button>
       </div>
       <pre id="diagBox" class="small hidden"></pre>
-      <div class="row wrap">
-        <div class="badge" id="modeBadge">Modalità: —</div>
-        <div class="badge" id="urlBadge">URL: —</div>
-        <button id="forceInvitee" class="secondary smallbtn">Forza modalità Invitato</button>
-        <button id="forceCreator" class="secondary smallbtn">Forza modalità Creatore</button>
-      </div>
     </section>
 
     <section id="creatorSection" class="panel">
@@ -38,6 +32,7 @@
         <p>Inserisci il tuo nome per creare la partita.</p>
         <input type="text" id="nameInput" placeholder="Il tuo nome">
         <button id="inviteBtn" disabled>Genera invito</button>
+        <div id="bindWarn" class="muted small hidden">⚠️ Il pulsante non risponde? Ricarica con <code>Ctrl/Cmd+Shift+R</code>. Se persiste, vedi diagnostica.</div>
       </div>
 
       <div id="gameLinkWrap" class="hidden">
@@ -71,6 +66,6 @@
     </section>
   </main>
 
-  <script src="script-v848-patch2.js?v=8_4_8_p2"></script>
+  <script src="script-v848-patch3.js?v=8_4_8_p3"></script>
 </body>
 </html>
