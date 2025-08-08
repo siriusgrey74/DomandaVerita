@@ -28,7 +28,7 @@ button:disabled{ opacity:0.6; cursor:not-allowed; }
 /* Betting controls */
 .betControls{ display:grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items:end; margin: 12px 0; }
 .betControl label{ display:block; margin-bottom:4px; color:#c9d1d9; font-weight:600; }
-#betSelect{ width:100%; padding:12px; font-size:1.1rem; border-radius:8px; background:#0d1117; color:var(--fg); border:1px solid #30363d; }
+#betSelect{ width:100%; padding:12px; font-size:1.1rem; border-radius:8px; background:#0d1117; color:#e6edf3; border:1px solid #30363d; }
 .bigInput{ font-size:1.3rem; height:52px; }
 .bigBtn{ height:52px; padding:0 20px; font-size:1.1rem; }
 

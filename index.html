@@ -7,19 +7,17 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="style.css?v=835">
+  <link rel="stylesheet" href="style.css?v=836">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="firebase-config.js?v=835"></script>
+  <script src="firebase-config.js?v=836"></script>
 </head>
 <body>
-  <div id="version-banner">Versione: v8.3.5 – Ruolo stabile via CLIENT_ID, UI azione corretta, diagnostica</div>
+  <div id="version-banner">Versione: v8.3.6 – Winner via clientId, controlli azione solo al vincitore, anti-stallo</div>
 
   <main id="app">
-    <!-- Diagnostics -->
     <div id="diagBox" class="panel muted small">diag…</div>
 
-    <!-- Creator section -->
     <section id="creatorSection" class="panel">
       <h1>Domanda o Verità</h1>
       <div id="creatorStart">
@@ -47,7 +45,6 @@
       </div>
     </section>
 
-    <!-- Invitee section -->
     <section id="inviteeSection" class="panel hidden">
       <h1>Sei stato invitato a giocare</h1>
       <p id="player1Info"></p>
@@ -59,7 +56,6 @@
       <p id="inviteeStatus"></p>
     </section>
 
-    <!-- Selection section -->
     <section id="selectCardsSection" class="panel hidden">
       <h2>Seleziona le tue 8 carte</h2>
       <div id="timer">Tempo rimasto: <span id="timeLeft">60</span>s</div>
@@ -80,7 +76,6 @@
       <p id="startBettingCountdown" class="muted hidden"></p>
     </section>
 
-    <!-- Betting section -->
     <section id="bettingSection" class="panel hidden">
       <h2>Fase di puntata – Turno <span id="turnNo">1</span></h2>
       <div class="row">
@@ -108,7 +103,6 @@
       <p id="betStatus" class="muted">Inserisci la tua puntata…</p>
     </section>
 
-    <!-- Outcome section -->
     <section id="outcomeSection" class="panel hidden">
       <h2>Esito puntata – Turno <span id="outcomeTurn">1</span></h2>
       <p id="outcomeText"></p>
@@ -116,7 +110,6 @@
       <div id="postOutcome"></div>
     </section>
 
-    <!-- Action (Domanda/Verità) -->
     <section id="actionSection" class="panel hidden">
       <h2>Fase Azione</h2>
       <div id="actionForWinner" class="hidden">
@@ -137,6 +130,6 @@
     </section>
   </main>
 
-  <script src="script-v835.js?v=835"></script>
+  <script src="script-v836.js?v=836"></script>
 </body>
 </html>
