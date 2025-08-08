@@ -1,4 +1,5 @@
 
+// Config Firebase del tuo progetto (già fornita da te)
 const firebaseConfig = {
   apiKey: "AIzaSyDPi2eXhnM4OJLhikPPnvrG7RWJDpk5JUs",
   authDomain: "domandaverita.firebaseapp.com",
