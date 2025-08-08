@@ -7,16 +7,24 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="style.css?v=8_4_4">
+  <link rel="stylesheet" href="style.css?v=8_4_6">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="firebase-config.js?v=8_4_4"></script>
+  <script src="firebase-config.js?v=8_4_6"></script>
 </head>
 <body>
-  <div id="version-banner">Versione: v8.4.4 – Risoluzione con leader unico (resolver), input puntata stabile</div>
+  <div id="version-banner">Versione: v8.4.6 – Fix esito (leader resiliente + retry), debug integrato</div>
 
   <main id="app">
     <div id="diagBox" class="panel muted small">diag…</div>
+    <div id="debugBar" class="panel small hidden">
+      <strong>DEBUG</strong>
+      <div class="row">
+        <button id="forceResolveBtn">Forza esito</button>
+        <button id="showStateBtn" class="secondary">Mostra stato</button>
+      </div>
+      <pre id="stateDump" class="small"></pre>
+    </div>
 
     <section id="creatorSection" class="panel">
       <h1>Domanda o Verità</h1>
@@ -132,6 +140,10 @@
     </section>
   </main>
 
-  <script src="script-v844.js?v=8_4_4"></script>
+  <script>
+    // Mostra la debug bar se c'è ?debug=1
+    (function(){ if(new URLSearchParams(location.search).get('debug')==='1'){ document.getElementById('debugBar').classList.remove('hidden'); } })();
+  </script>
+  <script src="script-v846.js?v=8_4_6"></script>
 </body>
 </html>

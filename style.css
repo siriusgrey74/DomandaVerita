@@ -32,3 +32,4 @@ button:disabled{ opacity:0.6; cursor:not-allowed; }
 .bigBtn{ height:52px; padding:0 20px; font-size:1.1rem; }
 
 .highlight{ margin:8px 0; padding:10px; background:#0b2b11; border:1px solid #224d2e; border-radius:8px; }
+pre.small{ white-space:pre-wrap; word-break:break-word; background:#11161d; padding:8px; border-radius:6px; border:1px solid #2a2f36;}
