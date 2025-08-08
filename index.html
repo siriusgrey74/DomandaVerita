@@ -7,13 +7,13 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="style.css?v=840">
+  <link rel="stylesheet" href="style.css?v=8_4_1">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="firebase-config.js?v=840"></script>
+  <script src="firebase-config.js?v=8_4_1"></script>
 </head>
 <body>
-  <div id="version-banner">Versione: v8.4.0 – Fix salvataggio puntata (ruolo certo, debounce), pareggi gestiti, action gating stabile</div>
+  <div id="version-banner">Versione: v8.4.1 – Ruolo certo prima del salvataggio, UI bloccata finché non risolta, pareggi senza Azione</div>
 
   <main id="app">
     <div id="diagBox" class="panel muted small">diag…</div>
@@ -84,18 +84,19 @@
       </div>
       <div id="betTimer">Tempo per puntare: <span id="betTimeLeft">15</span>s</div>
 
+      <div id="betLock" class="muted">Caricamento ruolo…</div>
       <div class="betControls">
         <div class="betControl">
           <label for="betSelect">Seleziona puntata:</label>
-          <select id="betSelect"></select>
+          <select id="betSelect" disabled></select>
         </div>
         <div class="betControl">
           <label for="betInput">Oppure inserisci un numero:</label>
-          <input id="betInput" type="number" min="0" step="1" value="0" class="bigInput">
+          <input id="betInput" type="number" min="0" step="1" value="0" class="bigInput" disabled>
         </div>
         <div class="betControl">
           <label>&nbsp;</label>
-          <button id="betZero" class="secondary bigBtn">Punta 0</button>
+          <button id="betZero" class="secondary bigBtn" disabled>Punta 0</button>
         </div>
       </div>
 
@@ -131,6 +132,6 @@
     </section>
   </main>
 
-  <script src="script-v840.js?v=840"></script>
+  <script src="script-v841.js?v=8_4_1"></script>
 </body>
 </html>
