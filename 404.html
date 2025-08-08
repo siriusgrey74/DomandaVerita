@@ -4,13 +4,16 @@
   <meta charset="UTF-8">
   <title>Domanda o Verità</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="style.css">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="stylesheet" href="style.css?v=831">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="firebase-config.js"></script>
+  <script src="firebase-config.js?v=831"></script>
 </head>
 <body>
-  <div id="version-banner">Versione: v8.3 – Fix combobox, esito chiaro, fase Azione (winner/loser)</div>
+  <div id="version-banner">Versione: v8.3.1 – Fase protetta, nessun auto-restart, +2 token corretti</div>
 
   <main id="app">
     <!-- Creator section -->
@@ -119,7 +122,10 @@
           <button id="chooseQuestion" class="bigBtn">Domanda</button>
           <button id="chooseTruth" class="bigBtn secondary">Verità</button>
         </div>
-        <p class="muted">(* In questa versione la parte Domanda/Verità è placeholder: registriamo la scelta.)</p>
+        <div class="row">
+          <button id="proceedNextTurn" class="danger">Chiudi azione e vai al turno successivo</button>
+        </div>
+        <p class="muted">(* In questa versione registriamo la scelta; il flusso domande/risposte arriva a breve.)</p>
       </div>
       <div id="actionForLoser" class="hidden">
         <p>Attendi che l'avversario effettui la sua azione…</p>
@@ -130,6 +136,6 @@
 
   <div id="diag" class="muted" style="padding:8px; text-align:center;"></div>
 
-  <script src="script-v83.js"></script>
+  <script src="script-v831.js?v=831"></script>
 </body>
 </html>
