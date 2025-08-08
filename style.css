@@ -31,6 +31,8 @@ button:disabled{ opacity:0.6; cursor:not-allowed; }
 .bigInput{ font-size:1.3rem; height:52px; }
 .bigBtn{ height:52px; padding:0 20px; font-size:1.1rem; }
 
+.highlight{ margin:8px 0; padding:10px; background:#0b2b11; border:1px solid #224d2e; border-radius:8px; }
+
 @media (max-width:800px){
   .betControls{ grid-template-columns: 1fr; }
 }
