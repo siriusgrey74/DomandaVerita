@@ -10,7 +10,7 @@
   <script src="firebase-config.js"></script>
 </head>
 <body>
-  <div id="version-banner">Versione: v8.1 – Pareggio: nessun vincitore (entrambi perdono la puntata)</div>
+  <div id="version-banner">Versione: v8.2 – Esito con stop + input puntata migliorato (regen)</div>
 
   <main id="app">
     <!-- Creator section -->
@@ -82,10 +82,22 @@
         <div id="oppLowWrap" class="muted hidden">• ⚠️ Avversario in difficoltà (token &lt; 6)</div>
       </div>
       <div id="betTimer">Tempo per puntare: <span id="betTimeLeft">15</span>s</div>
-      <div class="row">
-        <label for="betInput">La tua puntata:</label>
-        <input id="betInput" type="number" min="0" step="1" value="0">
+
+      <div class="betControls">
+        <div class="betControl">
+          <label for="betSelect">Seleziona puntata:</label>
+          <select id="betSelect"></select>
+        </div>
+        <div class="betControl">
+          <label for="betInput">Oppure inserisci un numero:</label>
+          <input id="betInput" type="number" min="0" step="1" value="0" class="bigInput">
+        </div>
+        <div class="betControl">
+          <label>&nbsp;</label>
+          <button id="betZero" class="secondary bigBtn">Punta 0</button>
+        </div>
       </div>
+
       <p class="muted">Le puntate restano segrete. Puoi modificare la cifra finché il timer non finisce.</p>
       <p id="betStatus" class="muted">Inserisci la tua puntata…</p>
     </section>
@@ -100,6 +112,6 @@
 
   <div id="diag" class="muted" style="padding:8px; text-align:center;"></div>
 
-  <script src="script-v81.js"></script>
+  <script src="script-v82.js"></script>
 </body>
 </html>
