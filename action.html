@@ -13,14 +13,7 @@
   <style>.countdown{font-weight:700;} .muted{opacity:.8}</style>
 </head>
 <body>
-  <div id="diag" style="position:sticky;top:0;background:#24292f;color:#fff;font:12px system-ui;padding:6px 8px;z-index:9999">
-    <span id="d_phase">phase=?</span> ·
-    <span id="d_turn">turn=?</span> ·
-    <span id="d_dead">deadline=?</span> ·
-    <span id="d_rr">postActionAdvanced=?</span> ·
-    <button id="d_fix" style="margin-left:8px;background:#444;color:#fff;border:0;border-radius:6px;padding:2px 8px;cursor:pointer">Ripara (solo dev)</button>
-  </div>
-  <div class="version">MVP v1.0.2 – Azione</div>
+  <div class="version">MVP v1.0.3 – Azione</div>
   <main>
     <section class="panel">
       <h2>Fase Azione</h2>
@@ -77,35 +70,13 @@
     const askUI=qs('#askUI'); const qSelect=qs('#qSelect'); const qParams=qs('#qParams'); const sendQ=qs('#sendQ');
     const qTimer=qs('#qTimer'); const qTimer2=qs('#qTimer2');
     const qaReveal=qs('#qaReveal'); const qText=qs('#qText'); const aText=qs('#aText'); const revealTimer=qs('#revealTimer'); const skipReveal=qs('#skipReveal');
-    const d_phase=qs('#d_phase'), d_turn=qs('#d_turn'), d_dead=qs('#d_dead'), d_rr=qs('#d_rr'), d_fix=qs('#d_fix');
     let qTicker=null, qDeadline=null;
-
-    function diag(d){
-      d_phase.textContent='phase='+d.phase;
-      d_turn.textContent='turn='+(d.turn??'?');
-      d_dead.textContent='deadline='+(d.revealUntil? new Date(d.revealUntil).toLocaleTimeString() : '—');
-      d_rr.textContent='postActionAdvanced='+(d.postActionAdvanced===true);
-    }
-    d_fix.onclick=()=>{
-      DB.ref('games/'+gid).transaction(data=>{
-        if(!data) return data;
-        const cur = data.turn||1;
-        data.postActionAdvanced=false;
-        data.phase='betting';
-        if(typeof data.turn!=='number'||data.turn<1) data.turn=cur;
-        data.bets={};
-        data.roundResolved=false;
-        data.betDeadlineAt=Date.now()+15000;
-        return data;
-      });
-    };
 
     function cardValue(code){
       const rank = code.replace(/[pcqf]$/,'').toUpperCase();
       if(['A','J','Q','K'].includes(rank)) return 10;
       const n = parseInt(rank,10); return isNaN(n)?0:n;
     }
-
     function renderParamsFor(type){
       qParams.innerHTML=''; qParams.style.display='none'; sendQ.disabled=true;
       if(type==='SUM_POS3'){
@@ -133,7 +104,6 @@
       }
       if(type==='COUNT_FACES'||type==='COUNT_NUMS'){ sendQ.disabled=false; }
     }
-
     qSelect.addEventListener('change', ()=> renderParamsFor(qSelect.value));
 
     btnAsk.addEventListener('click', ()=>{
@@ -175,7 +145,6 @@
       const revealForMs=20000; const actionObj={turn,by:role,type,params:{},questionText:q,answer:String(ans),askedAt:Date.now(),revealUntil:Date.now()+revealForMs};
       await DB.ref('games/'+gid+'/action').set(actionObj); await DB.ref('games/'+gid+'/phase').set('action_reveal');
     }
-
     sendQ.addEventListener('click', submitQuestion);
 
     function showReveal(d){
@@ -189,7 +158,7 @@
     }
 
     DB.ref('games/'+gid).on('value', s=>{
-      const d=s.val()||{}; diag(d);
+      const d=s.val()||{};
       const turn=d.turn||1; const r=d.rounds && d.rounds['turn_'+turn];
       if(d.phase==='action_reveal') return showReveal(d);
       if(d.phase!=='action'){ info.textContent='Fase non attiva (action).'; return; }
