@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Domanda o Verità – Home</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="style.css?v=1_0_0">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="firebase-config.js?v=1_0_0"></script>
+<script src="firebase-init.js?v=1_0_0"></script>
+<script src="common.js?v=1_0_0"></script>
+</head>
+<body>
+<div class="version">MVP 1.0.0 – Home</div>
+<main>
+  <section class="panel">
+    <h2>Nuova partita</h2>
+    <div class="cols2">
+      <div>
+        <label>Il tuo nome</label>
+        <input id="name" placeholder="Nome giocatore 1">
+      </div>
+      <div>
+        <label>Link invito (da inviare all'avversario)</label>
+        <div class="row">
+          <input id="invLink" readonly placeholder="Genera invito per ottenere il link">
+          <button class="secondary" id="copyBtn">Copia</button>
+        </div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="bigBtn" id="btnMake">Genera invito</button>
+    </div>
+    <div class="muted" id="stat">In attesa…</div>
+  </section>
+</main>
+<script>
+(function(){
+  const {qs, rid, copy} = DV;
+  const btn=qs('#btnMake'), name=qs('#name'), inv=qs('#invLink'), stat=qs('#stat'), copyBtn=qs('#copyBtn');
+
+  btn.onclick = async () => {
+    const nm = (name.value||'').trim() || 'Giocatore 1';
+    const gid = 'g_'+rid(6);
+    const base = location.origin + location.pathname.replace(/index\.html?$/i,''); // support root
+    const link = base + 'join.html?game='+gid+'&role=p2';
+    inv.value = link;
+    stat.textContent = 'Partita '+gid+' creata. Invia il link al tuo avversario.';
+    await DB.ref('games/'+gid).set({
+      createdAt: Date.now(),
+      phase: 'invite',
+      player1: {name: nm},
+      player2: null,
+      rounds: {},
+      bets: {},
+      postActionAdvanced: false
+    });
+    DB.ref('games/'+gid+'/phase').on('value', s=>{
+      if(s.val()==='choose'){
+        location.href = 'choose.html?game='+gid+'&role=p1';
+      }
+    });
+  };
+
+  copyBtn.onclick = ()=>{ if(!inv.value) return alert('Prima genera il link.'); DV.copy(inv.value); };
+})();
+</script>
+</body></html>
