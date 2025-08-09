@@ -13,7 +13,7 @@
   <style>.countdown{font-weight:700;} .muted{opacity:.8}</style>
 </head>
 <body>
-  <div class="version">MVP v1.0.1b – Azione (fix Domanda)</div>
+  <div class="version">MVP v1.0.1c – Azione (guard & reset)</div>
   <main>
     <section class="panel">
       <h2>Fase Azione</h2>
@@ -74,7 +74,7 @@
     const gid=params().get('game'); const role=params().get('role');
     const info=qs('#info');
     const winnerGate=qs('#winnerGate'); const loserGate=qs('#loserGate');
-    const btnAsk=qs('#btnAsk'); const btnTruth=qs('#btnTruth');
+    const btnAsk=qs('#btnAsk');
     const askUI=qs('#askUI'); const qSelect=qs('#qSelect'); const qParams=qs('#qParams'); const sendQ=qs('#sendQ');
     const qTimer=qs('#qTimer'); const qTimer2=qs('#qTimer2');
     const qaReveal=qs('#qaReveal'); const qText=qs('#qText'); const aText=qs('#aText'); const revealTimer=qs('#revealTimer'); const skipReveal=qs('#skipReveal');
@@ -133,15 +133,27 @@
     btnAsk.addEventListener('click', ()=>{
       askUI.style.display='block';
       qDeadline = Date.now()+60000;
-      function draw(){ const rem=Math.max(0,Math.floor((qDeadline - Date.now())/1000)); qTimer.textContent=rem; qTimer2.textContent=rem; if(rem<=0){ clearInterval(qTicker); expireQuestion(); } }
+      function draw(){ const rem=Math.max(0,Math.floor((qDeadline - Date.now())/1000)); qTimer.textContent=rem; qTimer2.textContent=rem; if(rem<=0){ clearInterval(qTicker); guardedAdvance(); } }
       if(qTicker) clearInterval(qTicker); qTicker=setInterval(draw,250); draw();
     });
 
-    function expireQuestion(){
-      DB.ref('games/'+gid).transaction(data=>{
+    async function guardedAdvance(){
+      await DB.ref('games/'+gid).transaction(data=>{
         if(!data) return data;
-        data.tokens_p1=(data.tokens_p1||0)+2; data.tokens_p2=(data.tokens_p2||0)+2;
-        data.turn=(data.turn||1)+1; data.bets={}; data.phase='betting'; data.betDeadlineAt=Date.now()+15000; data.action=null; return data;
+        if(!(data.phase==='action_reveal' || data.phase==='action')) return data;
+        const curTurn = data.turn||1;
+        const actTurn = data.action && data.action.turn;
+        if(actTurn && actTurn!==curTurn) return data;
+        if(data.postActionAdvanced) return data;
+        data.postActionAdvanced = true;
+        data.turn = curTurn+1;
+        data.tokens_p1=(data.tokens_p1||0)+2;
+        data.tokens_p2=(data.tokens_p2||0)+2;
+        data.bets={};
+        data.roundResolved=false;
+        data.phase='betting';
+        data.betDeadlineAt=Date.now()+15000;
+        return data;
       });
       location.href='bet.html?game='+gid+'&role='+role;
     }
@@ -193,18 +205,9 @@
       const act=d.action||{};
       qText.textContent='Domanda: '+(act.questionText||'(n/a)'); aText.textContent='Risposta: '+(act.answer??'—');
       const end = (act.revealUntil && typeof act.revealUntil==='number') ? act.revealUntil : (Date.now()+20000);
-      function draw(){ const rem=Math.max(0,Math.floor((end - Date.now())/1000)); revealTimer.textContent=rem; if(rem<=0){ goNext(); } }
+      function draw(){ const rem=Math.max(0,Math.floor((end - Date.now())/1000)); revealTimer.textContent=rem; if(rem<=0){ guardedAdvance(); } }
       let it=setInterval(draw,250); draw();
-      function goNext(){
-        clearInterval(it);
-        DB.ref('games/'+gid).transaction(data=>{
-          if(!data) return data;
-          data.tokens_p1=(data.tokens_p1||0)+2; data.tokens_p2=(data.tokens_p2||0)+2;
-          data.turn=(data.turn||1)+1; data.bets={}; data.phase='betting'; data.betDeadlineAt=Date.now()+15000; data.action=null; return data;
-        });
-        location.href='bet.html?game='+gid+'&role='+role;
-      }
-      skipReveal.onclick=goNext;
+      skipReveal.onclick=guardedAdvance;
     }
 
     DB.ref('games/'+gid).on('value', s=>{
@@ -214,14 +217,7 @@
       if(!r){ info.textContent='Esito puntata non trovato.'; return; }
       if(r.winner===null){
         info.textContent='Pareggio: nessuna azione.';
-        setTimeout(()=>{
-          DB.ref('games/'+gid).transaction(data=>{
-            if(!data) return data;
-            data.tokens_p1=(data.tokens_p1||0)+2; data.tokens_p2=(data.tokens_p2||0)+2;
-            data.turn=(data.turn||1)+1; data.bets={}; data.phase='betting'; data.betDeadlineAt=Date.now()+15000; data.action=null; return data;
-          });
-          location.href='bet.html?game='+gid+'&role='+role;
-        }, 1200);
+        setTimeout(guardedAdvance, 1200);
         return;
       }
       const winnerRole = r.winner;
