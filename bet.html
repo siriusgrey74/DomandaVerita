@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Domanda o Verità – Puntata</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css?v=1_0_0">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js?v=1_0_0"></script>
+  <script src="firebase-init.js?v=1_0_0"></script>
+  <script src="common.js?v=1_0_0"></script>
+</head>
+<body>
+  <div class="version">MVP v1.0.0 – Puntata</div>
+  <main>
+    <section class="panel">
+      <h2>Punta i tuoi token – Turno <span id="turn">1</span></h2>
+      <div class="row">
+        <div><strong>I tuoi token:</strong> <span id="myTok">—</span></div>
+        <div id="oppWarn" class="badge" style="display:none">Avversario &lt; 6</div>
+      </div>
+      <div>Tempo: <span id="t">15</span>s</div>
+
+      <div class="row">
+        <div style="flex:1">
+          <label for="sel">Seleziona puntata</label>
+          <select id="sel" disabled></select>
+        </div>
+        <div>
+          <button id="btn0" class="secondary bigBtn" disabled>Punta 0</button>
+        </div>
+      </div>
+
+      <div id="status" class="muted"></div>
+    </section>
+
+    <section id="out" class="panel" style="display:none">
+      <h2>Esito turno</h2>
+      <div id="outTxt"></div>
+      <div id="outAct"></div>
+    </section>
+  </main>
+
+  <script>
+  (function(){
+    const {qs, params, getCID, now} = DV;
+    const gid = params().get('game'); const role=params().get('role'); const cid=getCID();
+    const tEl=qs('#t'), turnEl=qs('#turn'), myTokEl=qs('#myTok'), status=qs('#status'), sel=qs('#sel'), btn0=qs('#btn0');
+    const out=qs('#out'), outTxt=qs('#outTxt'), outAct=qs('#outAct'), oppWarn=qs('#oppWarn');
+
+    function fillSelect(max){ sel.innerHTML=''; for(let i=0;i<=max;i++){ const o=document.createElement('option'); o.value=o.textContent=i; sel.appendChild(o);} }
+
+    let local = { myTok:0, oppTok:0, deadline:0, turn:1 };
+    let tickTimer=null, reconcileTimer=null, resolved=false;
+
+    DB.ref('games/'+gid).on('value', s=>{
+      const d=s.val()||{};
+      if(d.phase==='outcome'){ showOutcome(d); return; }
+      if(d.phase!=='betting') return;
+      turnEl.textContent = d.turn||1;
+      const myTok = role==='p1'? d.tokens_p1 : d.tokens_p2;
+      const oppTok = role==='p1'? d.tokens_p2 : d.tokens_p1;
+      myTokEl.textContent = (typeof myTok==='number')? myTok : '—';
+      if(typeof oppTok==='number' && oppTok<6){ oppWarn.style.display='inline-block'; } else { oppWarn.style.display='none'; }
+
+      if(local.myTok!==myTok){ local.myTok=myTok; fillSelect(myTok); sel.disabled=false; btn0.disabled=false; }
+      local.turn=d.turn||1;
+      if(typeof d.betDeadlineAt==='number'){ local.deadline=d.betDeadlineAt; }
+
+      // timer
+      function drawTimer(){ const r=Math.max(0, Math.floor((local.deadline - now())/1000)); tEl.textContent=r; if(r<=0){ sel.disabled=true; btn0.disabled=true; } }
+      drawTimer(); if(tickTimer) clearInterval(tickTimer); tickTimer=setInterval(drawTimer, 200);
+
+      // reconcile
+      if(reconcileTimer) clearInterval(reconcileTimer);
+      reconcileTimer = setInterval(()=>{
+        if(resolved) return;
+        const r = Math.max(0, Math.floor((local.deadline - now())/1000));
+        if(r<=0){
+          resolved=true;
+          resolveRound();
+        }
+      }, 800);
+    });
+
+    sel.addEventListener('change', ()=>{
+      const v = parseInt(sel.value||'0',10)||0;
+      DB.ref('games/'+gid+'/bets/'+role).set(v);
+      status.textContent='Puntata: '+v;
+    });
+    btn0.addEventListener('click', ()=>{ sel.value='0'; sel.dispatchEvent(new Event('change')); });
+
+    function resolveRound(){
+      // transaction compute
+      DB.ref('games/'+gid).transaction(data=>{
+        if(!data || data.phase!=='betting') return data;
+        if(data.roundResolved) return data;
+        const b1 = parseInt(data.bets?.p1||0,10)||0;
+        const b2 = parseInt(data.bets?.p2||0,10)||0;
+        const t1 = parseInt(data.tokens_p1||10,10)||10;
+        const t2 = parseInt(data.tokens_p2||10,10)||10;
+        const cb1 = Math.min(b1,t1);
+        const cb2 = Math.min(b2,t2);
+        data.tokens_p1 = t1 - cb1;
+        data.tokens_p2 = t2 - cb2;
+        let winner = null;
+        if(cb1>cb2) winner='p1'; else if(cb2>cb1) winner='p2'; else winner=null;
+        data.rounds = data.rounds||{};
+        const turn = data.turn||1;
+        data.rounds['turn_'+turn] = { bet_p1:cb1, bet_p2:cb2, winner };
+        data.lastWinner = winner;
+        data.winnerRole = winner;
+        data.roundResolved = true;
+        data.phase='outcome';
+        data.betDeadlineAt = null;
+        return data;
+      });
+    }
+
+    function showOutcome(d){
+      // stop timers/UI
+      if(tickTimer) clearInterval(tickTimer);
+      if(reconcileTimer) clearInterval(reconcileTimer);
+      sel.disabled=true; btn0.disabled=true;
+      out.style.display='block';
+      const turn = d.turn||1; const r = d.rounds && d.rounds['turn_'+turn];
+      if(!r){ outTxt.textContent='Errore: esito non disponibile.'; return; }
+      if(r.winner===null){
+        outTxt.textContent='Pareggio. Entrambi perdono le puntate.';
+        const btn = document.createElement('button'); btn.textContent='Prossimo turno'; btn.onclick=()=>{
+          DB.ref('games/'+gid).transaction(data=>{
+            if(!data || data.phase!=='outcome') return data;
+            data.turn = (data.turn||1)+1;
+            // +2 token a entrambi ad inizio nuovo turno
+            data.tokens_p1 = (data.tokens_p1||0) + 2;
+            data.tokens_p2 = (data.tokens_p2||0) + 2;
+            data.bets = {};
+            data.roundResolved=false;
+            data.phase='betting';
+            data.betDeadlineAt = Date.now()+15000;
+            return data;
+          });
+        };
+        outAct.innerHTML=''; outAct.appendChild(btn);
+      }else{
+        outTxt.textContent = 'Ha vinto: '+(r.winner==='p1' ? (d.player1?.name||'Giocatore 1') : (d.player2?.name||'Giocatore 2'));
+        const btn = document.createElement('button'); btn.textContent='Vai alla Fase Azione'; btn.onclick=()=>{
+          DB.ref('games/'+gid+'/phase').set('action');
+          location.href='action.html?game='+gid+'&role='+role;
+        };
+        outAct.innerHTML=''; outAct.appendChild(btn);
+      }
+    }
+  })();
+  </script>
+</body>
+</html>

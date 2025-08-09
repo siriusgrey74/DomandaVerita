@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Domanda o Verità – Invito ricevuto</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css?v=1_0_0">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js?v=1_0_0"></script>
+  <script src="firebase-init.js?v=1_0_0"></script>
+  <script src="common.js?v=1_0_0"></script>
+</head>
+<body>
+  <div class="version">MVP v1.0.0 – Invito ricevuto</div>
+  <main>
+    <section class="panel">
+      <h1>Sei stato invitato</h1>
+      <div id="invInfo" class="muted">Caricamento…</div>
+      <input id="invName" placeholder="Il tuo nome">
+      <div class="row">
+        <button id="acceptBtn" disabled class="bigBtn">Accetta</button>
+        <button id="rejectBtn" class="secondary">Rifiuta</button>
+      </div>
+      <div id="status" class="muted"></div>
+    </section>
+  </main>
+
+  <script>
+  (function(){
+    const {qs, params, getCID} = DV;
+    const gid = params().get('game');
+    const cid = getCID();
+    const invInfo = qs('#invInfo');
+    const invName = qs('#invName');
+    const acceptBtn = qs('#acceptBtn');
+    const rejectBtn = qs('#rejectBtn');
+    const status = qs('#status');
+
+    if(!gid){ invInfo.textContent='Link non valido.'; acceptBtn.disabled=true; rejectBtn.disabled=true; }
+
+    DB.ref('games/'+gid).once('value').then(s=>{
+      const d=s.val();
+      if(!d || !d.player1){ invInfo.textContent='Invito non valido.'; return; }
+      invInfo.textContent = 'Invito da: '+(d.player1.name||'Giocatore 1');
+    });
+
+    invName.addEventListener('input', ()=>{ acceptBtn.disabled = invName.value.trim().length<2; });
+
+    acceptBtn.addEventListener('click', async ()=>{
+      try{
+        await DB.ref('games/'+gid+'/player2').set({ name: invName.value.trim(), clientId: cid, role:'p2', joined:true });
+        await DB.ref('games/'+gid+'/phase').set('select');
+        status.textContent='Hai accettato. Si passa alla scelta carte…';
+        location.href='select.html?game='+gid+'&role=p2';
+      }catch(e){ status.textContent='Errore: '+e.message; }
+    });
+
+    rejectBtn.addEventListener('click', async ()=>{
+      try{ await DB.ref('games/'+gid+'/refused').set(true); status.textContent='Invito rifiutato.'; }catch(e){ status.textContent='Errore: '+e.message; }
+    });
+  })();
+  </script>
+</body>
+</html>
