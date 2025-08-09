@@ -1,3 +1,5 @@
+
+// firebase-config.js - paste your config here
 window.FIREBASE_CONFIG = {
   apiKey: "AIzaSyDPi2eXhnM4OJLhikPPnvrG7RWJDpk5JUs",
   authDomain: "domandaverita.firebaseapp.com",

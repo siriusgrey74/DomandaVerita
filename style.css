@@ -1,3 +1,4 @@
+
 :root { --bg:#0d1117; --fg:#e6edf3; --accent:#1f6feb; --card:#161b22; --muted:#8b949e; --ok:#2ea043; --danger:#da3633; }
 *{ box-sizing:border-box; } body{ margin:0; background:var(--bg); color:var(--fg); font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; }
 main{ max-width:960px; margin:0 auto; padding:20px; }
@@ -5,7 +6,7 @@ main{ max-width:960px; margin:0 auto; padding:20px; }
 h1,h2{ margin:0 0 12px; }
 button{ background:var(--accent); color:#fff; border:none; border-radius:8px; padding:10px 14px; font-weight:600; cursor:pointer; }
 button.secondary{ background:#30363d; } button.danger{ background:#da3633; } button:disabled{ opacity:0.6; cursor:not-allowed; }
-input,select{ width:100%; padding:10px 12px; border:1px solid #30363d; border-radius:8px; background:#0d1117; color:#e6edf3; margin:6px 0 10px; }
+input,select{ width:100%; padding:10px 12px; border:1px solid #30363d; border-radius:8px; background:#0d1117; color:var(--fg); margin:6px 0 10px; }
 .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
 .gridheader{ display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:6px; font-weight:700; color:#c9d1d9; }
 .cardgrid{ display:grid; grid-template-columns:repeat(4,1fr); grid-auto-rows:minmax(38px,auto); gap:6px; }
@@ -16,7 +17,5 @@ input,select{ width:100%; padding:10px 12px; border:1px solid #30363d; border-ra
 .toast{ position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:#161b22; color:#e6edf3; border:1px solid #30363d; padding:8px 12px; border-radius:8px; z-index:2000; transform:translateX(-50%); box-shadow:0 8px 24px rgba(0,0,0,.4); }
 .toast.hidden{ display:none; }
 .version{ position:sticky; top:0; z-index:10; background:var(--accent); color:#fff; text-align:center; padding:6px 10px; font-weight:700; }
-.muted{ color:#8b949e; }
+.muted{ color:var(--muted); }
 .bigBtn{ height:52px; font-size:1.1rem; padding:0 20px; }
-.qform{ margin-top:10px; padding:10px; border:1px solid #30363d; border-radius:8px; background:#0d1117; }
-.rowcols3{ display:grid; grid-template-columns:repeat(3, minmax(80px,1fr)); gap:10px; }

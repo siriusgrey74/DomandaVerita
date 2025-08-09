@@ -1,1 +1,97 @@
-<!DOCTYPE html><html lang='it'><head><meta charset='UTF-8'><title>Scelta carte</title><meta name='viewport' content='width=device-width, initial-scale=1'><link rel='stylesheet' href='style.css?v=1_1_2'><script src='https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js'></script><script src='https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js'></script><script src='firebase-config.js?v=1_1_0'></script><script src='firebase-init.js?v=1_1_0'></script><script src='common.js?v=1_1_0'></script></head><body><div class='version'>MVP v1.1.2 – Scelta carte (atomic init)</div><main><section class='panel'><h2>Seleziona le tue 8 carte</h2><div>Tempo: <span id='timeLeft'>60</span>s</div><div>Scelte: <span id='chosen'>—</span></div><div class='gridheader'><div>Picche (p)</div><div>Cuori (c)</div><div>Quadri (q)</div><div>Fiori (f)</div></div><div id='grid' class='cardgrid'></div><button id='confirmBtn' disabled class='bigBtn'>Conferma</button><div id='status' class='muted'></div></section></main><script>(function(){const {qs,qsa,params}=DV;const gid=params().get('game');const role=params().get('role');const grid=qs('#grid'),chosenEl=qs('#chosen'),timeEl=qs('#timeLeft'),status=qs('#status'),confirmBtn=qs('#confirmBtn');const ranks=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];const suits=['p','c','q','f'];let picked=[],over=false;function render(){grid.innerHTML='';for(let r=0;r<ranks.length;r++){for(let s=0;s<suits.length;s++){const code=ranks[r]+suits[s];const div=document.createElement('div');div.className='card';div.textContent=code;div.dataset.card=code;div.addEventListener('click',()=>toggle(code,div));grid.appendChild(div);}}update();}function toggle(code,el){if(el.classList.contains('disabled'))return;const i=picked.indexOf(code);if(i>-1)picked.splice(i,1);else{if(picked.length>=8)return;picked.push(code);}el.classList.toggle('selected');update();}function update(){chosenEl.textContent=picked.length?picked.join(', '):'—';confirmBtn.disabled=!(picked.length===8||over);}function lock(){qsa('.card').forEach(c=>c.classList.add('disabled'));}let t=60;timeEl.textContent=t;setInterval(()=>{t--;if(t<=0){t=0;over=true;const deck=[];for(const r of ranks){for(const s of suits){deck.push(r+s);}}while(picked.length<8){const p=deck[Math.floor(Math.random()*deck.length)];if(!picked.includes(p))picked.push(p);}qsa('.card').forEach(c=>{if(picked.includes(c.dataset.card))c.classList.add('selected');});update();lock();status.textContent='Tempo scaduto: completata automaticamente. Conferma.';}timeEl.textContent=t;},1000);confirmBtn.addEventListener('click',async()=>{try{const key=role==='p1'?'cards_p1':'cards_p2';await DB.ref('games/'+gid+'/'+key).set(picked);await DB.ref('games/'+gid+'/ready_'+role).set(true);lock();confirmBtn.disabled=true;status.textContent='Confermato. In attesa…';}catch(e){status.textContent='Errore: '+e.message;}});DB.ref('games/'+gid).on('value',async s=>{const d=s.val()||{};if(d.ready_p1&&d.ready_p2){status.textContent='Entrambi pronti. Inizializzo puntata…';await DB.ref('games/'+gid).transaction(data=>{if(!data)return data; if(data.phase!=='select')return data; data.phase='betting';data.turn=typeof data.turn==='number'?data.turn:1;if(typeof data.tokens_p1!=='number')data.tokens_p1=10;if(typeof data.tokens_p2!=='number')data.tokens_p2=10;data.bets={};data.roundResolved=false;data.betInitTurn=data.turn;data.betDeadlineAt=Date.now()+15000;return data;});location.href='bet.html?game='+gid+'&role='+role;}});render();})();</script></body></html>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Domanda o Verità – Scelta carte</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css?v=1_0_0">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js?v=1_0_0"></script>
+  <script src="firebase-init.js?v=1_0_0"></script>
+  <script src="common.js?v=1_0_0"></script>
+</head>
+<body>
+  <div class="version">MVP v1.0.0 – Scelta carte</div>
+  <main>
+    <section class="panel">
+      <h2>Seleziona le tue 8 carte</h2>
+      <div>Tempo: <span id="timeLeft">60</span>s</div>
+      <div>Scelte: <span id="chosen">—</span></div>
+      <div class="gridheader"><div>Picche (p)</div><div>Cuori (c)</div><div>Quadri (q)</div><div>Fiori (f)</div></div>
+      <div id="grid" class="cardgrid"></div>
+      <button id="confirmBtn" disabled class="bigBtn">Conferma</button>
+      <div id="status" class="muted"></div>
+    </section>
+  </main>
+
+  <script>
+  (function(){
+    const {qs, qsa, params} = DV;
+    const gid = params().get('game'); const role = params().get('role'); // p1/p2
+    const grid = qs('#grid'); const chosenEl = qs('#chosen'); const timeEl = qs('#timeLeft'); const status=qs('#status');
+    const confirmBtn = qs('#confirmBtn');
+    const ranks=['A','2','3','4','5','6','7','8','9','10','J','Q','K']; const suits=['p','c','q','f'];
+    let picked=[], timer=null, over=false;
+
+    function render(){
+      grid.innerHTML='';
+      for(let r=0;r<ranks.length;r++){
+        for(let s=0;s<suits.length;s++){
+          const code=ranks[r]+suits[s];
+          const div=document.createElement('div'); div.className='card'; div.textContent=code; div.dataset.card=code;
+          div.addEventListener('click', ()=>toggle(code,div));
+          grid.appendChild(div);
+        }
+      }
+      update();
+    }
+    function toggle(code, el){
+      if(el.classList.contains('disabled')) return;
+      const i=picked.indexOf(code);
+      if(i>-1) picked.splice(i,1);
+      else { if(picked.length>=8) return; picked.push(code); }
+      el.classList.toggle('selected');
+      update();
+    }
+    function update(){
+      chosenEl.textContent = picked.length? picked.join(', ') : '—';
+      confirmBtn.disabled = !(picked.length===8 || over);
+    }
+    function lock(){ qsa('.card').forEach(c=>c.classList.add('disabled')); }
+
+    // timer 60s
+    let t=60; timeEl.textContent=t;
+    timer=setInterval(()=>{ t--; if(t<=0){ t=0; clearInterval(timer); over=true; // auto-complete
+        const deck=[]; for(const r of ranks){ for(const s of suits){ deck.push(r+s); } }
+        while(picked.length<8){ const p=deck[Math.floor(Math.random()*deck.length)]; if(!picked.includes(p)) picked.push(p); }
+        qsa('.card').forEach(c=>{ if(picked.includes(c.dataset.card)) c.classList.add('selected'); });
+        update(); lock(); status.textContent='Tempo scaduto: selezione completata automaticamente. Conferma.';
+      }
+      timeEl.textContent=t;
+    },1000);
+
+    confirmBtn.addEventListener('click', async ()=>{
+      try{
+        const key = role==='p1' ? 'cards_p1' : 'cards_p2';
+        await DB.ref('games/'+gid+'/'+key).set(picked);
+        await DB.ref('games/'+gid+'/ready_'+role).set(true);
+        lock(); confirmBtn.disabled=true; status.textContent='Confermato. In attesa dell\'avversario…';
+      }catch(e){ status.textContent='Errore: '+e.message; }
+    });
+
+    DB.ref('games/'+gid).on('value', s=>{
+      const d=s.val()||{};
+      if(d.ready_p1 && d.ready_p2){
+        status.textContent='Entrambi pronti. Vai alla puntata…';
+        // init round base if missing
+        DB.ref('games/'+gid).update({ phase:'betting', turn: d.turn||1, tokens_p1: typeof d.tokens_p1==='number'?d.tokens_p1:10, tokens_p2: typeof d.tokens_p2==='number'?d.tokens_p2:10, betDeadlineAt: Date.now()+15000, rounds: d.rounds||{} });
+        location.href='bet.html?game='+gid+'&role='+role;
+      }
+    });
+
+    render();
+  })();
+  </script>
+</body>
+</html>
