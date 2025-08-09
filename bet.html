@@ -12,7 +12,7 @@
   <script src="common.js?v=1_0_0"></script>
 </head>
 <body>
-  <div class="version">MVP v1.0.0 – Puntata</div>
+  <div class="version">MVP v1.0.0a – Puntata</div>
   <main>
     <section class="panel">
       <h2>Punta i tuoi token – Turno <span id="turn">1</span></h2>
@@ -55,6 +55,13 @@
     let tickTimer=null, reconcileTimer=null, resolved=false;
 
     DB.ref('games/'+gid).on('value', s=>{
+      const d=s.val()||{};
+      // NEW: auto-redirect both players when phase becomes 'action'.
+      if(d.phase==='action'){
+        location.href='action.html?game='+gid+'&role='+role;
+        return;
+      }
+
       const d=s.val()||{};
       if(d.phase==='outcome'){ showOutcome(d); return; }
       if(d.phase!=='betting') return;
