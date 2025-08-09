@@ -17,9 +17,10 @@
     <span id="d_phase">phase=?</span> ·
     <span id="d_turn">turn=?</span> ·
     <span id="d_dead">deadline=?</span> ·
-    <span id="d_rr">roundResolved=?</span>
+    <span id="d_rr">roundResolved=?</span> ·
+    <button id="d_fix_boot" style="margin-left:8px;background:#444;color:#fff;border:0;border-radius:6px;padding:2px 8px;cursor:pointer">Ripara primo turno</button>
   </div>
-  <div class="version">MVP v1.0.3 – Puntata</div>
+  <div class="version">MVP v1.0.3a – Puntata</div>
   <main>
     <section class="panel">
       <h2>Punta i tuoi token – Turno <span id="turn">—</span></h2>
@@ -57,7 +58,7 @@
     const gid=params().get('game'); const role=params().get('role');
     const tEl=qs('#t'), turnEl=qs('#turn'), myTokEl=qs('#myTok'), status=qs('#status'), sel=qs('#sel'), btn0=qs('#btn0');
     const out=qs('#out'), outTxt=qs('#outTxt'), outAct=qs('#outAct'), oppWarn=qs('#oppWarn');
-    const d_phase=qs('#d_phase'), d_turn=qs('#d_turn'), d_dead=qs('#d_dead'), d_rr=qs('#d_rr');
+    const d_phase=qs('#d_phase'), d_turn=qs('#d_turn'), d_dead=qs('#d_dead'), d_rr=qs('#d_rr'), fixBoot=qs('#d_fix_boot');
     const readyRow=qs('#readyRow'), btnReady=qs('#btnReady'), readyInfo=qs('#readyInfo');
     let local={deadline:0}; let tick=null, resolveTick=null, resolved=false;
 
@@ -77,6 +78,60 @@
       d_rr.textContent='roundResolved='+(d.roundResolved===true);
     }
 
+    // Manual bootstrap button (dev only)
+    fixBoot.onclick=()=>{
+      DB.ref('games/'+gid).transaction(data=>{
+        if(!data) return data;
+        // initialize only if at betting and first round or inconsistent
+        if(data.phase!=='betting') return data;
+        const emptyRounds = !data.rounds || Object.keys(data.rounds).length===0;
+        if(emptyRounds){
+          if(typeof data.tokens_p1!=='number') data.tokens_p1=10;
+          if(typeof data.tokens_p2!=='number') data.tokens_p2=10;
+          data.turn = 1;
+        } else {
+          if(typeof data.turn!=='number' || data.turn<1) data.turn = inferNextTurn(data.rounds);
+        }
+        if(typeof data.betDeadlineAt!=='number') data.betDeadlineAt=Date.now()+15000;
+        data.bets = data.bets || {};
+        data.roundResolved = false;
+        data.postActionAdvanced = false;
+        return data;
+      });
+    };
+
+    // Auto-bootstrap on entry to betting
+    async function autoBootstrap(d){
+      const emptyRounds = !d.rounds || Object.keys(d.rounds).length===0;
+      let needFix = false;
+      if(typeof d.turn!=='number' || d.turn<1) needFix = true;
+      if(typeof d.betDeadlineAt!=='number') needFix = true;
+      if(typeof d.tokens_p1!=='number' || typeof d.tokens_p2!=='number'){
+        // only bootstrap tokens if no rounds yet (first betting)
+        if(emptyRounds) needFix = true;
+      }
+      if(needFix){
+        await DB.ref('games/'+gid).transaction(data=>{
+          if(!data || data.phase!=='betting') return data;
+          const empty = !data.rounds || Object.keys(data.rounds).length===0;
+          if(empty){
+            if(typeof data.tokens_p1!=='number') data.tokens_p1=10;
+            if(typeof data.tokens_p2!=='number') data.tokens_p2=10;
+            data.turn = 1;
+          } else {
+            if(typeof data.turn!=='number' || data.turn<1) data.turn = inferNextTurn(data.rounds);
+          }
+          if(typeof data.betDeadlineAt!=='number') data.betDeadlineAt = Date.now()+15000;
+          data.bets = data.bets || {};
+          data.roundResolved = false;
+          data.postActionAdvanced = false;
+          return data;
+        });
+        return true;
+      }
+      return false;
+    }
+
     DB.ref('games/'+gid).on('value', async s=>{
       const d=s.val()||{}; diag(d);
 
@@ -86,20 +141,11 @@
       if(d.phase==='outcome'){ return showOutcome(d); }
       if(d.phase!=='betting'){ return; }
 
-      let needFix=false;
-      if(typeof d.turn!=='number' || d.turn<1) needFix=true;
-      if(typeof d.betDeadlineAt!=='number') needFix=true;
-      if(needFix){
-        await DB.ref('games/'+gid).transaction(data=>{
-          if(!data || data.phase!=='betting') return data;
-          if(typeof data.turn!=='number' || data.turn<1) data.turn = inferNextTurn(data.rounds||{});
-          if(typeof data.betDeadlineAt!=='number') data.betDeadlineAt=Date.now()+15000;
-          data.bets=data.bets||{}; data.roundResolved=false; data.postActionAdvanced=false;
-          return data;
-        });
-        return;
-      }
+      // first-turn + consistency bootstrap
+      const fixed = await autoBootstrap(d);
+      if(fixed) return; // wait for next snapshot
 
+      // Normal render
       turnEl.textContent=d.turn;
       const myTok = role==='p1'? d.tokens_p1 : d.tokens_p2;
       const oppTok = role==='p1'? d.tokens_p2 : d.tokens_p1;
@@ -136,7 +182,7 @@
         const turn=(typeof data.turn==='number' && data.turn>=1)?data.turn:inferNextTurn(data.rounds||{});
         data.rounds=data.rounds||{}; data.rounds['turn_'+turn]={ bet_p1:cb1, bet_p2:cb2, winner };
         data.lastWinner=winner; data.winnerRole=winner; data.roundResolved=true; data.phase='outcome'; data.betDeadlineAt=null;
-        // important resets for next cycle
+        // resets for next cycle
         data.postActionAdvanced=false;
         data.continueReady = {p1:false, p2:false};
         return data;
@@ -176,12 +222,9 @@
         if(role===winnerRole){
           const btn=document.createElement('button'); btn.textContent='Vai alla Fase Domanda';
           btn.onclick=()=>{
-            // Winner proceeds; loser autoredirects via listener
             DB.ref('games/'+gid').transaction(data=>{
               if(!data || data.phase!=='outcome') return data;
-              data.phase='action';
-              // ensure flags are consistent
-              data.postActionAdvanced=false;
+              data.phase='action'; data.postActionAdvanced=false;
               return data;
             });
             location.href='action.html?game='+gid+'&role='+role;
